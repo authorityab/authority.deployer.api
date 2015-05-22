@@ -1,0 +1,24 @@
+﻿@model List<DeployerServices.Models.ViewModels.DebugViewModel>
+
+<h2>Index</h2>
+
+<table>
+    <tr>
+        <th>ProjectId</th>
+        <th>ProjectName</th>
+        <th>BuildStatus</th>
+        <th>LastChangedBy</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.ProjectId</td>
+            <td>@item.ProjectName</td>
+            <td>@item.BuildStatus</td>
+            <td>@item.LastChangedBy</td>
+        </tr>
+    }
+</table>
+
+
+
