@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DeployerServices.Classes;
 using Newtonsoft.Json;
 
 namespace DeployerServices.Models
@@ -13,6 +14,11 @@ namespace DeployerServices.Models
 
         [JsonProperty("lastChanges")]
         public TeamCityLastChanges LastChanges { get; set; }
+
+        [JsonProperty("status")]
+        public BuildStatus Status { get; set; }
+
+
     }
 
     public class TeamCityBuildType

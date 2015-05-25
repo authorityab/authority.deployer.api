@@ -1,16 +1,18 @@
 ﻿using System.Collections.Generic;
-using DeployerServices.Classes;
+using Octopus.Client.Model;
 
 namespace DeployerServices.Models.ViewModels
 {
     public class DebugViewModel
     {
-        public string ProjectId { get; set; } 
+        public DebugViewModel()
+        {
+            TeamCityBuilds = new List<TeamCityBuildViewModel>();
+            OctopusProjects = new List<ProjectResource>();
+        }
 
-        public string ProjectName { get; set; }
+        public List<TeamCityBuildViewModel> TeamCityBuilds { get; set; }
 
-        public BuildStatus BuildStatus { get; set; }
-
-        public string LastChangedBy { get; set; }
+        public List<ProjectResource> OctopusProjects { get; set; } 
     }
 }

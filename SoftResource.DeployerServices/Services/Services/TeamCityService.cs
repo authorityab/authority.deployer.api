@@ -94,6 +94,10 @@ namespace DeployerServices.Services
             return ConfigurationManager.AppSettings["TeamCityMonitorProjects"].Split(',');
         }
 
+        public string[] GetBuildConfigIdsFromConfig()
+        {
+            return ConfigurationManager.AppSettings["TeamCityMonitorBuilds"].Split(',');
+        }
 
         public List<TeamCityProject> GetAllProjects()
         {
@@ -112,7 +116,7 @@ namespace DeployerServices.Services
             }
         }
 
-        public TeamCityBuild GetLatestBuild(string projectId)
+        public TeamCityBuild GetLatestBuildByProjectId(string projectId)
         {
             try
             {
@@ -131,12 +135,11 @@ namespace DeployerServices.Services
                 return null;
             }
         }
-
-        public TeamCityBuildInfo GetBuildInfo(int buildId)
+        public TeamCityBuildInfo GetBuildInfo(string buildConfigId)
         {
             try
             {
-                var uri = string.Format("{0}/builds/id:{1}", Url, buildId);
+                var uri = string.Format("{0}/buildTypes/id:{1}/builds/running:false?count=1&start=0", Url, buildConfigId);
                 var result = Request(uri);
                 var root = JObject.Parse(result);
                 var serializer = new JsonSerializer();
@@ -150,7 +153,27 @@ namespace DeployerServices.Services
             {
                 return null;
             }
-        } 
+        }
+
+        //public TeamCityBuildInfo GetBuildInfo(int buildId)
+        //{
+        //    try
+        //    {
+        //        var uri = string.Format("{0}/builds/id:{1}", Url, buildId);
+        //        var result = Request(uri);
+        //        var root = JObject.Parse(result);
+        //        var serializer = new JsonSerializer();
+
+
+        //        var build = serializer.Deserialize<TeamCityBuildInfo>(root.CreateReader());
+
+        //        return build;
+        //    }
+        //    catch (JsonException ex)
+        //    {
+        //        return null;
+        //    }
+        //} 
 
     }
 }
