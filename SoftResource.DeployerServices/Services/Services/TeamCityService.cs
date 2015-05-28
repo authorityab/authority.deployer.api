@@ -4,10 +4,15 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Security;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Web.Configuration;
 using DeployerServices.Models;
+using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -15,78 +20,104 @@ namespace DeployerServices.Services
 {
     public class TeamCityService
     {
-        public const string UserName = "TeamCityServiceUser";
-        public const string Password = "superhemligt#3";
-        public const string Url = "http://tc.softresourcehosting.com/httpAuth/app/rest";
+        private string Username { get; set; }
+        private string Password { get; set; }
+        private string ApiUrl { get; set; }
+
+        private readonly ILog _log = LogManager.GetLogger(typeof(TeamCityService));
+
+
+        public TeamCityService()
+        {
+            Username = WebConfigurationManager.AppSettings["TeamCityUsername"];
+            Password = WebConfigurationManager.AppSettings["TeamCityPassword"];
+            ApiUrl = WebConfigurationManager.AppSettings["TeamCityApiUrl"];
+        }
 
         public static bool Validator(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             return true;
         }
 
-        private static string Request(string url)
+        public string Request(Uri uri)
         {
-            var credentials = GetCredentials(UserName, Password);
-            HttpWebResponse response = null;
-
-            var sbSource = string.Empty;
-            ServicePointManager.ServerCertificateValidationCallback = Validator;
-            try
+            using (var httpClient = new HttpClient())
             {
-                var request = WebRequest.Create(url) as HttpWebRequest;
-                if (request != null)
-                {
-                    request.MaximumAutomaticRedirections = 1;
-                    request.AllowAutoRedirect = true;
-                    // 2. It's important that both the Accept and ContentType headers are
-                    // set in order for this to be interpreted as an API request.
-                    request.Accept = "application/json";
-                    request.ContentType = "application/json";
-                    //request.UserAgent = "harvest_api_sample.cs";
-                    // 3. Add the Basic Authentication header with username/password string.
-                    request.Headers.Add("Authorization", "Basic " + credentials);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", GetCredentials());
+                httpClient.BaseAddress = uri;
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                    using (response = request.GetResponse() as HttpWebResponse)
-                    {
-                        if (request.HaveResponse && response != null)
-                        {
-                            var reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                            sbSource = new StringBuilder(reader.ReadToEnd()).ToString();
-                        }
-                    }
-                }
-            }
-            catch (WebException wex)
-            {
-                if (wex.Response != null)
-                {
-                    using (var errorResponse = (HttpWebResponse)wex.Response)
-                    {
-                        return string.Format(
-                              "The server returned '{0}' with the status code {1} ({2:d}).",
-                              errorResponse.StatusDescription, errorResponse.StatusCode,
-                              errorResponse.StatusCode);
-                    }
-                }
-                else
-                {
-                    return wex.ToString();
-                }
-            }
-            finally
-            {
-                if (response != null)
-                {
-                    response.Close();
-                }
-            }
 
-            return sbSource;
+                var response = httpClient.GetAsync(uri).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return response.Content.ReadAsStringAsync().Result;
+                }
+
+                throw new Exception(string.Format("Something went wrong with the request. {0}", response.RequestMessage));
+            }
         }
 
-        private static string GetCredentials(string username, string password)
+        //private string Request(string url)
+        //{
+        //    var credentials = GetCredentials();
+        //    HttpWebResponse response = null;
+
+        //    var sbSource = string.Empty;
+        //    ServicePointManager.ServerCertificateValidationCallback = Validator;
+        //    try
+        //    {
+        //        var request = WebRequest.Create(url) as WebRequest;
+        //        if (request != null)
+        //        {
+        //            request.MaximumAutomaticRedirections = 1;
+        //            request.AllowAutoRedirect = true;
+        //            request.Accept = "application/json";
+        //            request.ContentType = "application/json";
+        //            request.Headers.Add("Authorization", "Basic " + credentials);
+
+        //            using (response = request.GetResponse() as HttpWebResponse)
+        //            {
+        //                if (request.HaveResponse && response != null)
+        //                {
+        //                    var reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+        //                    sbSource = new StringBuilder(reader.ReadToEnd()).ToString();
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (WebException wex)
+        //    {
+        //        if (wex.Response != null)
+        //        {
+        //            using (var errorResponse = (HttpWebResponse)wex.Response)
+        //            {
+        //                _log.Error(
+        //                    string.Format("Request to Team City failed. The server returned '{0}' with the status code {1} ({2:d}).",
+        //                        errorResponse.StatusDescription, errorResponse.StatusCode,
+        //                        errorResponse.StatusCode), wex);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            _log.Error("Request to Team City failed. " + wex, wex);
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        if (response != null)
+        //        {
+        //            response.Close();
+        //        }
+        //    }
+
+        //    return sbSource;
+        //}
+
+        private string GetCredentials()
         {
-            return Convert.ToBase64String(new ASCIIEncoding().GetBytes(username + ":" + password));
+            return Convert.ToBase64String(new ASCIIEncoding().GetBytes(Username + ":" + Password));
         }
 
         public string[] GetProjectsIdsFromConfig()
@@ -103,7 +134,7 @@ namespace DeployerServices.Services
         {
             try
             {
-                var uri = string.Format("{0}/projects", Url);
+                var uri = new Uri(string.Format("{0}/projects", ApiUrl));
                 var result = Request(uri);
                 var root = JObject.Parse(result);
                 var serializer = new JsonSerializer();
@@ -112,15 +143,17 @@ namespace DeployerServices.Services
             }
             catch (JsonException ex)
             {
-                return null;
+                _log.Error("Get all projects failed.", ex);
             }
+
+            return null;
         }
 
         public TeamCityBuild GetLatestBuildByProjectId(string projectId)
         {
             try
             {
-                var uri = string.Format("{0}/builds/?locator=project:(id:{1})&count=1", Url, projectId);
+                var uri = new Uri(string.Format("{0}/builds/?locator=project:(id:{1})&count=1", ApiUrl, projectId));
                 var result = Request(uri);
                 var root = JObject.Parse(result);
                 var serializer = new JsonSerializer();
@@ -132,14 +165,16 @@ namespace DeployerServices.Services
             }
             catch (JsonException ex)
             {
-                return null;
+                _log.Error(string.Format("Get latest build by project id {0} failed.", projectId), ex);
             }
+
+            return null;
         }
         public TeamCityBuildInfo GetBuildInfo(string buildConfigId)
         {
             try
             {
-                var uri = string.Format("{0}/buildTypes/id:{1}/builds/running:false?count=1&start=0", Url, buildConfigId);
+                var uri = new Uri(string.Format("{0}/buildTypes/id:{1}/builds/running:false?count=1&start=0", ApiUrl, buildConfigId));
                 var result = Request(uri);
                 var root = JObject.Parse(result);
                 var serializer = new JsonSerializer();
@@ -151,29 +186,10 @@ namespace DeployerServices.Services
             }
             catch (JsonException ex)
             {
-                return null;
+                _log.Error(string.Format("Get build info with build config id {0} failed.", buildConfigId), ex);
             }
+
+            return null;
         }
-
-        //public TeamCityBuildInfo GetBuildInfo(int buildId)
-        //{
-        //    try
-        //    {
-        //        var uri = string.Format("{0}/builds/id:{1}", Url, buildId);
-        //        var result = Request(uri);
-        //        var root = JObject.Parse(result);
-        //        var serializer = new JsonSerializer();
-
-
-        //        var build = serializer.Deserialize<TeamCityBuildInfo>(root.CreateReader());
-
-        //        return build;
-        //    }
-        //    catch (JsonException ex)
-        //    {
-        //        return null;
-        //    }
-        //} 
-
     }
 }

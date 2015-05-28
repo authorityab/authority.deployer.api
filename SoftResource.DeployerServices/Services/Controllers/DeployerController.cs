@@ -9,23 +9,16 @@ namespace DeployerServices.Controllers
 {
     public class DeployerController : ApiController
     {
-        //public const string DeployerUrl 
-
         public string GetBuildStatus()
         {
             var tcService = new TeamCityService();
-            //var octopusService = new OctopusService();
-
-            //var projectsIds = tcService.GetProjectsIdsFromConfig();
             var buildConfigIds = tcService.GetBuildConfigIdsFromConfig();
-
             var buildList = new List<TeamCityBuildViewModel>();
             foreach (var configId in buildConfigIds)
             {
                 var buildInfo = tcService.GetBuildInfo(configId);
                 if (buildInfo != null)
                 {
-                    //var buildInfo = tcService.GetBuildInfo(latestBuild.Id);
                     var teamCityBuild = new TeamCityBuildViewModel
                     {
                         BuildStatus = buildInfo.Status,
@@ -38,11 +31,7 @@ namespace DeployerServices.Controllers
                     buildList.Add(teamCityBuild);
                 }  
             }
-
-            //debugViewModel.OctopusProjects = octopusService.GetAllProjects();S
             return JsonConvert.SerializeObject(buildList);
-
-            //return View(debugViewModel);
         }
 
         public string GetProjects()
@@ -53,7 +42,6 @@ namespace DeployerServices.Controllers
 
             return JsonConvert.SerializeObject(projects);
         }
-
 
         public string GetDashboard()
         {
