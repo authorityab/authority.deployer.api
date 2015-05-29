@@ -41,80 +41,34 @@ namespace DeployerServices.Services
 
         public string Request(Uri uri)
         {
-            using (var httpClient = new HttpClient())
+            try
             {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", GetCredentials());
-                httpClient.BaseAddress = uri;
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                var response = httpClient.GetAsync(uri).Result;
-
-                if (response.IsSuccessStatusCode)
+                using (var httpClient = new HttpClient())
                 {
-                    return response.Content.ReadAsStringAsync().Result;
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                        GetCredentials());
+                    httpClient.BaseAddress = uri;
+                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+
+                    var response = httpClient.GetAsync(uri).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return response.Content.ReadAsStringAsync().Result;
+                    }
+
+                    _log.Error(string.Format("Something went wrong with the request. {0}", response.RequestMessage));
                 }
-
-                throw new Exception(string.Format("Something went wrong with the request. {0}", response.RequestMessage));
             }
+            catch (Exception e)
+            {
+                
+            }
+            return null;
         }
-
-        //private string Request(string url)
-        //{
-        //    var credentials = GetCredentials();
-        //    HttpWebResponse response = null;
-
-        //    var sbSource = string.Empty;
-        //    ServicePointManager.ServerCertificateValidationCallback = Validator;
-        //    try
-        //    {
-        //        var request = WebRequest.Create(url) as WebRequest;
-        //        if (request != null)
-        //        {
-        //            request.MaximumAutomaticRedirections = 1;
-        //            request.AllowAutoRedirect = true;
-        //            request.Accept = "application/json";
-        //            request.ContentType = "application/json";
-        //            request.Headers.Add("Authorization", "Basic " + credentials);
-
-        //            using (response = request.GetResponse() as HttpWebResponse)
-        //            {
-        //                if (request.HaveResponse && response != null)
-        //                {
-        //                    var reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-        //                    sbSource = new StringBuilder(reader.ReadToEnd()).ToString();
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (WebException wex)
-        //    {
-        //        if (wex.Response != null)
-        //        {
-        //            using (var errorResponse = (HttpWebResponse)wex.Response)
-        //            {
-        //                _log.Error(
-        //                    string.Format("Request to Team City failed. The server returned '{0}' with the status code {1} ({2:d}).",
-        //                        errorResponse.StatusDescription, errorResponse.StatusCode,
-        //                        errorResponse.StatusCode), wex);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            _log.Error("Request to Team City failed. " + wex, wex);
-        //        }
-        //    }
-        //    finally
-        //    {
-        //        if (response != null)
-        //        {
-        //            response.Close();
-        //        }
-        //    }
-
-        //    return sbSource;
-        //}
-
         private string GetCredentials()
         {
             return Convert.ToBase64String(new ASCIIEncoding().GetBytes(Username + ":" + Password));
