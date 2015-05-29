@@ -63,5 +63,13 @@ namespace DeployerServices.Controllers
             return JsonConvert.SerializeObject(octopusService.GetTaskProgress(taskId));
         }
 
+        public string TriggerDeploy(string projectId)
+        {
+            var octopusService = new OctopusService();
+            var taskId = octopusService.ReleaseTheCracken(projectId);
+
+            return taskId;
+        }
+
     }
 }
