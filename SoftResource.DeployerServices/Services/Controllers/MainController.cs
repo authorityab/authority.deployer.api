@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Configuration;
 using System.Linq;
 using System.Web.Mvc;
 using DeployerServices.Models.ViewModels;
 using DeployerServices.Services;
+using Octopus.Client;
 
 namespace DeployerServices.Controllers
 {
@@ -14,7 +15,7 @@ namespace DeployerServices.Controllers
             var tcService = new TeamCityService();
             var octopusService = new OctopusService();
 
-            //var projectsIds = tcService.GetProjectsIdsFromConfig();
+            var projectsIds = tcService.GetProjectsIdsFromConfig();
             var buildConfigIds = tcService.GetBuildConfigIdsFromConfig();
 
             var debugViewModel = new DebugViewModel();
@@ -34,11 +35,11 @@ namespace DeployerServices.Controllers
                             : string.Empty
                     };
                     debugViewModel.TeamCityBuilds.Add(teamCityBuild);
-                }  
+                }
             }
 
             debugViewModel.OctopusProjects = octopusService.GetAllProjects();
-
+            
             return View(debugViewModel);
         }
         //// GET: api/Home

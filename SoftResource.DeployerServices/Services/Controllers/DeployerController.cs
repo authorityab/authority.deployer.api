@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web.Http;
+using System.Web.Mvc;
 using DeployerServices.Models.ViewModels;
 using DeployerServices.Services;
 using Newtonsoft.Json;
+using Octopus.Client;
 
 namespace DeployerServices.Controllers
 {
@@ -51,5 +55,13 @@ namespace DeployerServices.Controllers
 
             return JsonConvert.SerializeObject(dashboard);
         }
+
+        public string GetTaskProgress(string taskId)
+        {
+            var octopusService = new OctopusService();
+
+            return JsonConvert.SerializeObject(octopusService.GetTaskProgress(taskId));
+        }
+
     }
 }
