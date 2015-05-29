@@ -7,7 +7,7 @@ using DeployerServices.Services;
 
 namespace DeployerServices.Controllers
 {
-    public class DebugController : Controller
+    public class MainController : Controller
     {
         public ActionResult Index()
         {
