@@ -127,8 +127,8 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Classes\BuildStatus.cs" />
-    <Compile Include="Controllers\BuildStatusController.cs" />
-    <Compile Include="Controllers\DashboardController.cs" />
+    <Compile Include="Controllers\BuildStatusesController.cs" />
+    <Compile Include="Controllers\DashboardsController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\DeployController.cs" />
     <Compile Include="Controllers\ProjectsController.cs" />

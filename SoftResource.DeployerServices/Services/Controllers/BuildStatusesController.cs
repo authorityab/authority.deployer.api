@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 
 namespace DeployerServices.Controllers
 {
-    public class BuildStatusController : ApiController
+    public class BuildStatusesController : ApiController
     {
-        public string GetBuildStatus()
+        public string GetAllBuildStatuses()
         {
             var tcService = new TeamCityService();
             var buildConfigIds = tcService.GetBuildConfigIdsFromConfig();

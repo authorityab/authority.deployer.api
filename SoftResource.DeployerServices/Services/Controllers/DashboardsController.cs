@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 
 namespace DeployerServices.Controllers
 {
-    public class DashboardController : ApiController
+    public class DashboardsController : ApiController
     {
-        public string GetDashboard()
+        public string Get()
         {
             var octopusService = new OctopusService();
 

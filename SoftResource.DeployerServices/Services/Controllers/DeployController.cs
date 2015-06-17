@@ -5,7 +5,7 @@ namespace DeployerServices.Controllers
 {
     public class DeployController : ApiController
     {
-        public string PostDeploy(string id)
+        public string Post(string id)
         {
             var octopusService = new OctopusService();
             var taskId = octopusService.ReleaseTheCracken(id);
