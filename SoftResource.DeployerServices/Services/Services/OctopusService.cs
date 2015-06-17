@@ -2,11 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Web.Configuration;
-using DeployerServices.Models;
 using log4net;
 using Octopus.Client;
 using Octopus.Client.Model;
@@ -78,47 +74,59 @@ namespace DeployerServices.Services
 
         public string ReleaseTheCracken(string projectId)
         {
-            //TODO : Remove hardcode string
-            projectId = "projects-33";
-            var endpoint = new OctopusServerEndpoint(ServerUrl, ApiKey);
-            var repository = new OctopusRepository(endpoint);
-
-            var items = GetDashboardDynamic().Items;
-            if (items.Any())
+            try
             {
-                var item = GetDashboardDynamic().Items.FirstOrDefault(x => x.EnvironmentId == "Environments-1" && x.ProjectId == projectId);
-                if (item != null)
+                //TODO : Remove hardcode string
+                projectId = "projects-33";
+                var endpoint = new OctopusServerEndpoint(ServerUrl, ApiKey);
+                var repository = new OctopusRepository(endpoint);
+
+                var items = GetDashboardDynamic().Items;
+                if (items.Any())
                 {
-                    var deploymentResource = new DeploymentResource
+                    var item =
+                        GetDashboardDynamic()
+                            .Items.FirstOrDefault(x => x.EnvironmentId == "Environments-1" && x.ProjectId == projectId);
+                    if (item != null)
                     {
-                        ProjectId = item.ProjectId, 
-                        EnvironmentId = "Environments-2",
-                        ReleaseId = item.ReleaseId
-                    };
+                        var deploymentResource = new DeploymentResource
+                        {
+                            ProjectId = item.ProjectId,
+                            EnvironmentId = "Environments-2",
+                            ReleaseId = item.ReleaseId
+                        };
 
-                    var deployment = repository.Deployments.Create(deploymentResource);
+                        var deployment = repository.Deployments.Create(deploymentResource);
 
-                    return deployment.TaskId;
+                        return deployment.TaskId;
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                _log.Error("The release of the Cracken failed.", e);
+            }
 
-            return string.Empty;
+
+            return null;
         }
 
         public TaskResource GetTaskProgress(string taskId)
         {
-            TaskResource task = null;
+            
             try
             {
                 var endpoint = new OctopusServerEndpoint(ServerUrl, ApiKey);
                 var repository = new OctopusRepository(endpoint);
-                task = repository.Tasks.Get(taskId);
+                var task = repository.Tasks.Get(taskId);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
+                _log.Error("Polling of task failed.", e);
             }
 
-            return task;
+            return null;
+
         }
     }
 }

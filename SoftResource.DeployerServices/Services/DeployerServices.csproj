@@ -118,8 +118,8 @@
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Views\Main\Index.cshtml" />
-    <Content Include="Views\Main\sd.txt" />
+    <Content Include="Views\Test\Index.cshtml" />
+    <Content Include="Views\Test\sd.txt" />
     <Content Include="Web.config" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
@@ -127,8 +127,12 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Classes\BuildStatus.cs" />
-    <Compile Include="Controllers\MainController.cs" />
-    <Compile Include="Controllers\DeployerController.cs" />
+    <Compile Include="Controllers\BuildStatusController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
+    <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="Controllers\DeployController.cs" />
+    <Compile Include="Controllers\ProjectsController.cs" />
+    <Compile Include="Controllers\TasksController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
-using System.Web.Mvc;
 using DeployerServices.Models.ViewModels;
 using DeployerServices.Services;
 using Newtonsoft.Json;
-using Octopus.Client;
 
 namespace DeployerServices.Controllers
 {
-    public class DeployerController : ApiController
+    public class BuildStatusController : ApiController
     {
         public string GetBuildStatus()
         {
@@ -33,43 +29,9 @@ namespace DeployerServices.Controllers
                             : string.Empty
                     };
                     buildList.Add(teamCityBuild);
-                }  
+                }
             }
             return JsonConvert.SerializeObject(buildList);
         }
-
-        public string GetProjects()
-        {
-            var octopusService = new OctopusService();
-
-            var projects =  octopusService.GetAllProjects();
-
-            return JsonConvert.SerializeObject(projects);
-        }
-
-        public string GetDashboard()
-        {
-            var octopusService = new OctopusService();
-
-            var dashboard = octopusService.GetDashboardDynamic();
-
-            return JsonConvert.SerializeObject(dashboard);
-        }
-
-        public string GetTaskProgress(string taskId)
-        {
-            var octopusService = new OctopusService();
-
-            return JsonConvert.SerializeObject(octopusService.GetTaskProgress(taskId));
-        }
-
-        public string TriggerDeploy(string projectId)
-        {
-            var octopusService = new OctopusService();
-            var taskId = octopusService.ReleaseTheCracken(projectId);
-
-            return taskId;
-        }
-
     }
 }
