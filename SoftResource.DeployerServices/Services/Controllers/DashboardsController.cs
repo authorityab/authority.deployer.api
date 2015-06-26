@@ -6,7 +6,7 @@ namespace DeployerServices.Controllers
 {
     public class DashboardsController : ApiController
     {
-        public string Get()
+        public string GetDashboards()
         {
             var octopusService = new OctopusService();
 
