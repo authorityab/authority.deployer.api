@@ -1,4 +1,5 @@
-﻿using DeployerServices.Classes;
+﻿using System.Globalization;
+using DeployerServices.Classes;
 using Newtonsoft.Json;
 
 namespace DeployerServices.Models
@@ -14,6 +15,8 @@ namespace DeployerServices.Models
 
         [JsonProperty("status")]
         public BuildStatus Status { get; set; }
+
+       
 
 
     }

@@ -119,6 +119,8 @@ namespace DeployerServices.Services
                 var endpoint = new OctopusServerEndpoint(ServerUrl, ApiKey);
                 var repository = new OctopusRepository(endpoint);
                 var task = repository.Tasks.Get(taskId);
+
+                return task;
             }
             catch (Exception e)
             {

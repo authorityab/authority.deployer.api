@@ -11,7 +11,9 @@ using System.Web.Configuration;
 using DeployerServices.Models;
 using log4net;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using TeamCitySharp;
 
 namespace DeployerServices.Services
 {
@@ -19,6 +21,7 @@ namespace DeployerServices.Services
     {
         private string Username { get; set; }
         private string Password { get; set; }
+        private string TeamCityUrl { get; set; }
         private string ApiUrl { get; set; }
 
         private readonly ILog _log = LogManager.GetLogger(typeof(TeamCityService));
@@ -29,6 +32,7 @@ namespace DeployerServices.Services
             Username = WebConfigurationManager.AppSettings["TeamCityUsername"];
             Password = WebConfigurationManager.AppSettings["TeamCityPassword"];
             ApiUrl = WebConfigurationManager.AppSettings["TeamCityApiUrl"];
+            TeamCityUrl = WebConfigurationManager.AppSettings["TeamCityUrl"];
         }
 
         public static bool Validator(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
@@ -83,6 +87,10 @@ namespace DeployerServices.Services
 
         public List<TeamCityProject> GetAllProjects()
         {
+            var client = new TeamCityClient(TeamCityUrl);
+            client.Connect(Username, Password);
+            var projects = client.Projects.All();
+
             try
             {
                 var uri = new Uri(string.Format("{0}/projects", ApiUrl));
@@ -100,15 +108,15 @@ namespace DeployerServices.Services
             return null;
         }
 
-        public TeamCityBuild GetLatestBuildByProjectId(string projectId)
+
+        public TeamCityBuild GetLatestFailedBuild()
         {
             try
             {
-                var uri = new Uri(string.Format("{0}/builds/?locator=project:(id:{1})&count=1", ApiUrl, projectId));
+                var uri = new Uri(string.Format("{0}/builds/?locator=status:failure,count:1", ApiUrl));
                 var result = Request(uri);
                 var root = JObject.Parse(result);
                 var serializer = new JsonSerializer();
-
 
                 var build = serializer.Deserialize<List<TeamCityBuild>>(root["build"].CreateReader()).FirstOrDefault();
 
@@ -116,12 +124,13 @@ namespace DeployerServices.Services
             }
             catch (JsonException ex)
             {
-                _log.Error(string.Format("Get latest build by project id {0} failed.", projectId), ex);
+                _log.Error(string.Format("Get latest build failed."), ex);
             }
 
             return null;
         }
-        public TeamCityBuildInfo GetBuildInfo(string buildConfigId)
+
+        public TeamCityBuildInfo GetBuildTypeInfo(string buildConfigId)
         {
             try
             {
@@ -138,6 +147,29 @@ namespace DeployerServices.Services
             catch (JsonException ex)
             {
                 _log.Error(string.Format("Get build info with build config id {0} failed.", buildConfigId), ex);
+            }
+
+            return null;
+        }
+
+
+        public TeamCityBuildInfo GetBuildTypeInfo(int buildId)
+        {
+            try
+            {
+                var uri = new Uri(string.Format("{0}/builds/id:{1}", ApiUrl, buildId));
+                var result = Request(uri);
+                var root = JObject.Parse(result);
+                var serializer = new JsonSerializer();
+
+                var build = JsonConvert.DeserializeObject<TeamCityBuildInfo>(result, new IsoDateTimeConverter());
+                //var build = serializer.Deserialize<TeamCityBuildInfo>(root.CreateReader(),);
+
+                return build;
+            }
+            catch (JsonException ex)
+            {
+                _log.Error(string.Format("Get build info with build id {0} failed.", buildId), ex);
             }
 
             return null;

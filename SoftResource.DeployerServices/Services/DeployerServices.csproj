@@ -38,6 +38,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EasyHttp">
+      <HintPath>..\packages\EasyHttp.1.6.1.0\lib\net40\EasyHttp.dll</HintPath>
+    </Reference>
+    <Reference Include="JsonFx">
+      <HintPath>..\packages\JsonFx.2.0.1209.2802\lib\net40\JsonFx.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
@@ -69,6 +75,9 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="TeamCitySharp">
+      <HintPath>..\packages\TeamCitySharp.0.3.5\lib\net40\TeamCitySharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web.Razor">
@@ -127,18 +136,19 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Classes\BuildStatus.cs" />
-    <Compile Include="Controllers\BuildStatusesController.cs" />
-    <Compile Include="Controllers\DashboardsController.cs" />
+    <Compile Include="Controllers\BuildsController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\DeployController.cs" />
     <Compile Include="Controllers\ProjectsController.cs" />
-    <Compile Include="Controllers\TasksController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\OctopusProject.cs" />
     <Compile Include="Models\TeamCityBuild.cs" />
     <Compile Include="Models\TeamCityBuildInfo.cs" />
+    <Compile Include="Models\TeamCityBuildType.cs" />
+    <Compile Include="Models\TeamCityChange.cs" />
+    <Compile Include="Models\TeamCityLastChanges.cs" />
     <Compile Include="Models\ViewModels\DebugViewModel.cs" />
     <Compile Include="Models\ViewModels\OctopusProjectViewModel.cs" />
     <Compile Include="Models\ViewModels\TeamCityBuildViewModel.cs" />

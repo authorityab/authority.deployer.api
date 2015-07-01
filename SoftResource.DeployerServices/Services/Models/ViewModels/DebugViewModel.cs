@@ -13,6 +13,10 @@ namespace DeployerServices.Models.ViewModels
 
         public List<TeamCityBuildViewModel> TeamCityBuilds { get; set; }
 
-        public List<ProjectResource> OctopusProjects { get; set; } 
+        public List<ProjectResource> OctopusProjects { get; set; }
+
+
+        public TeamCityBuildViewModel LatestFailedBuild { get; set; } 
     }
+
 }

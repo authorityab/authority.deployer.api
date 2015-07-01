@@ -3,64 +3,98 @@
 <h2>Debug view</h2>
 
 
-<h2>TeamCity Buildss</h2>
-
-@if (Model.TeamCityBuilds != null)
-{
-    <table>
-        <tr>
-            <th>ProjectId</th>
-            <th>ProjectName</th>
-            <th>BuildStatus</th>
-            <th>LastChangedBy</th>
-        </tr>
-
-        @foreach (var item in Model.TeamCityBuilds)
-        {
-            <tr>
-                <td>@item.ProjectId</td>
-                <td>@item.ProjectName</td>
-                <td>@item.BuildStatus</td>
-                <td>@item.LastChangedBy</td>
-            </tr>
-        }
-    </table>
+<h2>Latest Failed build</h2>
+<table>
+    <tr>
+        <th>ProjectId</th>
+        <th>ProjectName</th>
+        <th>BuildStatus</th>
+        <th>LastChangedBy</th>
+        <th>BuildStarted</th>
+        <th>BuildFinished</th>
+        <th>Version</th>
+    </tr>
     
-   
-}
-else
-{
-    <p>Could not get Team City builds</p>
-}
+    
+    <tr>
+        <td>@Model.LatestFailedBuild.ProjectId</td>
+        <td>@Model.LatestFailedBuild.ProjectName</td>
+        <td>@Model.LatestFailedBuild.BuildStatus</td>
+        <td>@Model.LatestFailedBuild.LastChangedBy</td>
+        
+        <td>@Model.LatestFailedBuild.StartDate</td>
+        <td>@Model.LatestFailedBuild.FinishDate</td>
+        <td>@Model.LatestFailedBuild.Version</td>
+    </tr>
+
+</table>
 
 
-<h2>Octopus Projects</h2>
+    <h2>TeamCity Builds</h2>
 
-@if (Model.TeamCityBuilds != null)
-{
-    <table>
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>ProjectGroupId</th>
-            <th>LastModifiedBy</th>
-        </tr>
+    @if (Model.TeamCityBuilds != null)
+    {
+        <table>
+            <tr>
+                <th>ProjectId</th>
+                <th>ProjectName</th>
+                <th>BuildStatus</th>
+                <th>LastChangedBy</th>
+                <th>BuildStarted</th>
+                <th>BuildFinished</th>
+                <th>Version</th>
+            </tr>
 
-        @foreach (var item in Model.OctopusProjects)
-        {
-        <tr>
-            <td>@item.Id</td>
-            <td>@item.Name</td>
-            <td>@item.ProjectGroupId</td>
-            <td>@item.LastModifiedBy</td>
-        </tr>
-        }
-    </table>
-}
-else
-{
-    <p>Could not get Octopus projects</p>
-}
+            @foreach (var item in Model.TeamCityBuilds)
+            {
+                <tr>
+                    <td>@item.ProjectId</td>
+                    <td>@item.ProjectName</td>
+                    <td>@item.BuildStatus</td>
+                    <td>@item.LastChangedBy</td>
+                    
+                    <td>@Model.LatestFailedBuild.StartDate</td>
+                    <td>@Model.LatestFailedBuild.FinishDate</td>
+                    <td>@Model.LatestFailedBuild.Version</td>
+                </tr>
+            }
+        </table>
+
+
+    }
+    else
+    {
+        <p>Could not get Team City builds</p>
+    }
+
+
+    <h2>Octopus Projects</h2>
+
+    @if (Model.TeamCityBuilds != null)
+    {
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>ProjectGroupId</th>
+                <th>LastModifiedBy</th>
+            </tr>
+
+            @foreach (var item in Model.OctopusProjects)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.ProjectGroupId</td>
+                    <td>@item.LastModifiedBy</td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <p>Could not get Octopus projects</p>
+    }
 
 
 

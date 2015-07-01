@@ -7,16 +7,16 @@ using Newtonsoft.Json;
 
 namespace DeployerServices.Controllers
 {
-    public class BuildStatusesController : ApiController
+    public class BuildsController : ApiController
     {
-        public string GetAllBuildStatuses()
+        public string GetStatus()
         {
             var tcService = new TeamCityService();
             var buildConfigIds = tcService.GetBuildConfigIdsFromConfig();
             var buildList = new List<TeamCityBuildViewModel>();
             foreach (var configId in buildConfigIds)
             {
-                var buildInfo = tcService.GetBuildInfo(configId);
+                var buildInfo = tcService.GetBuildTypeInfo(configId);
                 if (buildInfo != null)
                 {
                     var teamCityBuild = new TeamCityBuildViewModel

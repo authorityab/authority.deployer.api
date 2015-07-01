@@ -6,13 +6,22 @@ namespace DeployerServices.Controllers
 {
     public class ProjectsController : ApiController
     {
-        public string GetAllProjects()
+        //public string GetAllProjects()
+        //{
+        //    var octopusService = new OctopusService();
+
+        //    var projects = octopusService.GetAllProjects();
+
+        //    return JsonConvert.SerializeObject(projects);
+        //}
+
+        public string GetAll()
         {
             var octopusService = new OctopusService();
 
-            var projects = octopusService.GetAllProjects();
+            var dashboard = octopusService.GetDashboardDynamic();
 
-            return JsonConvert.SerializeObject(projects);
+            return JsonConvert.SerializeObject(dashboard);
         }
     }
 }

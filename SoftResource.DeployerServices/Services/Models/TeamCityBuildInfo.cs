@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DeployerServices.Classes;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace DeployerServices.Models
 {
@@ -15,39 +17,24 @@ namespace DeployerServices.Models
         [JsonProperty("lastChanges")]
         public TeamCityLastChanges LastChanges { get; set; }
 
+        [JsonProperty("startDate", ItemConverterType = typeof(JavaScriptDateTimeConverter))]
+        public DateTime StartDate { get; set; }
+
+        [JsonProperty("finishDate", ItemConverterType = typeof(JavaScriptDateTimeConverter))]
+        public DateTime FinishDate { get; set; }
+
         [JsonProperty("status")]
         public BuildStatus Status { get; set; }
 
+        [JsonProperty("number")]
+        public string Version { get; set; }
+
 
     }
 
-    public class TeamCityBuildType
-    {
-        [JsonProperty("id")]
-        public string Id { get; set; }
+   
 
-        [JsonProperty("name")]
-        public string Name { get; set; }
+   
 
-        [JsonProperty("projectName")]
-        public string ProjectName { get; set; }
-    }
-
-    public class TeamCityLastChanges
-    {
-        [JsonProperty("count")]
-        public int Count { get; set; }
-
-        [JsonProperty("change")]
-        public List<TeamCityChange> Changes { get; set; }
-    }
-
-    public class TeamCityChange
-    {
-        [JsonProperty("id")]
-        public int Id { get; set; }
-
-        [JsonProperty("username")]
-        public string Username { get; set; }
-    }
+    
 }
