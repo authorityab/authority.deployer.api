@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Octopus.Client.Model;
+using TeamCitySharp.DomainEntities;
 
 namespace DeployerServices.Models.ViewModels
 {
@@ -7,16 +8,19 @@ namespace DeployerServices.Models.ViewModels
     {
         public DebugViewModel()
         {
-            TeamCityBuilds = new List<TeamCityBuildViewModel>();
-            OctopusProjects = new List<ProjectResource>();
+            TeamCityBuilds = new List<Build>();
+            OctopusProjects = new List<DashboardProjectResource>();
         }
 
-        public List<TeamCityBuildViewModel> TeamCityBuilds { get; set; }
+        public List<Build> TeamCityBuilds { get; set; }
 
-        public List<ProjectResource> OctopusProjects { get; set; }
+        public List<DashboardProjectResource> OctopusProjects { get; set; }
 
+        public Build LatestBuild { get; set; }
 
-        public TeamCityBuildViewModel LatestFailedBuild { get; set; } 
+        public Build LatestFailedBuild { get; set; }
+
+        public string BuildDestroyer { get; set; } 
     }
 
 }

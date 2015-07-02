@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Web.Http;
+using System.Web.Routing;
 
 namespace DeployerServices
 {
@@ -13,10 +14,20 @@ namespace DeployerServices
             // Web API routes
             config.MapHttpAttributeRoutes();
 
+            
+
+
             config.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}", 
-                defaults: new { id = RouteParameter.Optional }
+                name: "ApiGET",
+                routeTemplate: "api/{controller}/{action}/{id}",
+                defaults: new { id = RouteParameter.Optional, action = "Get", httpMethod = new HttpMethodConstraint("GET")}
+            );
+
+            config.Routes.MapHttpRoute(
+
+                name: "ApiPOST",
+                routeTemplate: "api/{controller}/{action}/{id}",
+                defaults: new { id = RouteParameter.Optional, action = "Post", httpMethod = new HttpMethodConstraint("POST") }
             );
         }
     }

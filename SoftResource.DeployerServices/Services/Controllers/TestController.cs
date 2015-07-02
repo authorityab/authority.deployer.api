@@ -10,56 +10,24 @@ namespace DeployerServices.Controllers
         public ActionResult Index()
         {
             var tcService = new TeamCityService();
-
-
-            tcService.GetAllProjects();
-
             var octopusService = new OctopusService();
 
-            var buildConfigIds = tcService.GetBuildConfigIdsFromConfig();
+            var allBuilds = tcService.GetAllBuilds();
+            var latestBuild = allBuilds.OrderByDescending(x => x.FinishDate).FirstOrDefault();
 
-            var debugViewModel = new DebugViewModel();
-            foreach (var configId in buildConfigIds)
+            var debugViewModel = new DebugViewModel
             {
-                var buildInfo = tcService.GetBuildTypeInfo(configId);
-                if (buildInfo != null)
-                {
-                    //var buildInfo = tcService.GetBuildInfo(latestBuild.Id);
-                    var teamCityBuild = new TeamCityBuildViewModel
-                    {
-                        Version =  buildInfo.Version,
-                        BuildStatus = buildInfo.Status,
-                        ProjectId = buildInfo.BuildType.Id,
-                        ProjectName = buildInfo.BuildType.ProjectName,
-                        StartDate = buildInfo.StartDate,
-                        FinishDate = buildInfo.FinishDate,
-                        LastChangedBy = buildInfo.LastChanges.Count > 0
-                            ? string.Join(", ", buildInfo.LastChanges.Changes.Select(x => x.Username))
-                            : string.Empty
-                    };
-                    debugViewModel.TeamCityBuilds.Add(teamCityBuild);
-                }
-            }
-
-            var latestFailed = tcService.GetLatestFailedBuild();
-            var failedBuildInfo = tcService.GetBuildTypeInfo(latestFailed.Id);
-
-            var latestFailedViewModel = new TeamCityBuildViewModel
-            {
-                Version = failedBuildInfo.Version,
-                BuildStatus = failedBuildInfo.Status,
-                ProjectId = failedBuildInfo.BuildType.Id,
-                ProjectName = failedBuildInfo.BuildType.ProjectName,
-                StartDate = failedBuildInfo.StartDate,
-                FinishDate = failedBuildInfo.FinishDate,
-                LastChangedBy = failedBuildInfo.LastChanges.Count > 0
-                    ? string.Join(", ", failedBuildInfo.LastChanges.Changes.Select(x => x.Username))
-                    : string.Empty
+                OctopusProjects = octopusService.GetDashboardDynamic().Projects,
+                TeamCityBuilds = allBuilds,
+                LatestBuild = latestBuild
             };
 
-            debugViewModel.LatestFailedBuild = latestFailedViewModel;
-            debugViewModel.OctopusProjects = octopusService.GetAllProjects();
-            
+            string buildDestroyer;
+            var latestFailedBuild = tcService.GetLatestFailedBuild(out buildDestroyer);
+
+            debugViewModel.LatestFailedBuild = latestFailedBuild;
+            debugViewModel.BuildDestroyer = buildDestroyer;
+
             return View(debugViewModel);
         }
     }

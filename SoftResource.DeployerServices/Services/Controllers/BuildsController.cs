@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
-using DeployerServices.Models.ViewModels;
+﻿using System.Web.Http;
 using DeployerServices.Services;
 using Newtonsoft.Json;
 
@@ -9,29 +6,31 @@ namespace DeployerServices.Controllers
 {
     public class BuildsController : ApiController
     {
-        public string GetStatus()
+        public string Get()
         {
             var tcService = new TeamCityService();
-            var buildConfigIds = tcService.GetBuildConfigIdsFromConfig();
-            var buildList = new List<TeamCityBuildViewModel>();
-            foreach (var configId in buildConfigIds)
+
+            var builds = tcService.GetAllBuilds();
+
+            return JsonConvert.SerializeObject(builds);
+        }
+
+        [HttpGet]
+        public string LatestFailed()
+        {
+            var tcService = new TeamCityService();
+
+            string buildDestroyer;
+            var latestFailed = tcService.GetLatestFailedBuild(out buildDestroyer);
+
+            var build = new
             {
-                var buildInfo = tcService.GetBuildTypeInfo(configId);
-                if (buildInfo != null)
-                {
-                    var teamCityBuild = new TeamCityBuildViewModel
-                    {
-                        BuildStatus = buildInfo.Status,
-                        ProjectId = buildInfo.BuildType.Id,
-                        ProjectName = buildInfo.BuildType.ProjectName,
-                        LastChangedBy = buildInfo.LastChanges.Count > 0
-                            ? string.Join(", ", buildInfo.LastChanges.Changes.Select(x => x.Username))
-                            : string.Empty
-                    };
-                    buildList.Add(teamCityBuild);
-                }
-            }
-            return JsonConvert.SerializeObject(buildList);
+                Build = latestFailed,
+                BuildDestroyer = buildDestroyer
+            };
+
+
+            return JsonConvert.SerializeObject(build);
         }
     }
 }

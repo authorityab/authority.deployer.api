@@ -75,9 +75,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="TeamCitySharp">
-      <HintPath>..\packages\TeamCitySharp.0.3.5\lib\net40\TeamCitySharp.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web.Razor">
@@ -174,6 +171,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Users\virtualuser\Desktop\TeamCitySharp-master\TeamCitySharp-master\src\TeamCitySharp\TeamCitySharp.csproj">
+      <Project>{87598714-132f-478e-866e-8c1af3e83057}</Project>
+      <Name>TeamCitySharp</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

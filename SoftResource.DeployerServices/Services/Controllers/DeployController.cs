@@ -14,7 +14,8 @@ namespace DeployerServices.Controllers
             return taskId;
         }
 
-        public string GetStatus(string taskId)
+        [HttpGet]
+        public string Status(string taskId)
         {
             var octopusService = new OctopusService();
 
