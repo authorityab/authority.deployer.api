@@ -133,6 +133,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Classes\BuildStatus.cs" />
+    <Compile Include="Classes\MultipartMediaTypeFormatter.cs" />
     <Compile Include="Controllers\BuildsController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\DeployController.cs" />

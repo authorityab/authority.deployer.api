@@ -11,6 +11,25 @@ namespace DeployerServices.Services
 {
     public class OctopusService
     {
+        /*
+         * Octopus Environment ID
+         * 
+         *  DEV: Environments-1
+         *  TST: Environments-2
+         *  UAT: Environments-3
+         *  PRO: Environments-4
+         *  LAB: Environments-33
+         *  
+         */
+
+        /*
+         * Ocotpus Projects ID
+         *  
+         *  SoftResource.Web - Develop: projects-33 | DEV - TST
+         *  SoftResource.Web - Master: projects-225 | UAT - PRO
+         *  
+         */
+
         private string ServerUrl { get; set; } 
         private string ApiKey { get; set; }
 
@@ -27,9 +46,14 @@ namespace DeployerServices.Services
             return WebConfigurationManager.AppSettings["OctopusProjectsIds"].Split(',');
         }
 
-        public string[] GetEnvironmentIdsFromConfig()
+        public string GetDeployFromEnvironmentId()
         {
-            return WebConfigurationManager.AppSettings["OctopusEnvironmentIds"].Split(',');
+            return WebConfigurationManager.AppSettings["OctopusDeployFromEnvironmentId"];
+        }
+
+        public string GetDeployToEnvironmentId()
+        {
+            return WebConfigurationManager.AppSettings["OctopusDeployToEnvironmentId"];
         }
 
         public List<ProjectResource> GetAllProjects()
@@ -58,9 +82,9 @@ namespace DeployerServices.Services
                 var repository = new OctopusRepository(endpoint);
 
                 var projectsIds = GetProjectIdsFromConfig();
-                var envIds = GetEnvironmentIdsFromConfig();
+                var envIds = GetDeployFromEnvironmentId();
 
-                var dash = repository.Dashboards.GetDynamicDashboard(projectsIds, envIds);
+                var dash = repository.Dashboards.GetDynamicDashboard(projectsIds, new[] { envIds });
 
                 return dash;
             }
@@ -76,23 +100,22 @@ namespace DeployerServices.Services
         {
             try
             {
-                //TODO : Remove hardcode string
-                projectId = "projects-33";
                 var endpoint = new OctopusServerEndpoint(ServerUrl, ApiKey);
                 var repository = new OctopusRepository(endpoint);
+
+                var sourceEnvId = GetDeployFromEnvironmentId();
+                var destinationEnvId = GetDeployToEnvironmentId();
 
                 var items = GetDashboardDynamic().Items;
                 if (items.Any())
                 {
-                    var item =
-                        GetDashboardDynamic()
-                            .Items.FirstOrDefault(x => x.EnvironmentId == "Environments-1" && x.ProjectId == projectId);
+                    var item = items.FirstOrDefault(x => x.EnvironmentId == sourceEnvId && x.ProjectId == projectId);
                     if (item != null)
                     {
                         var deploymentResource = new DeploymentResource
                         {
                             ProjectId = item.ProjectId,
-                            EnvironmentId = "Environments-2",
+                            EnvironmentId = destinationEnvId,
                             ReleaseId = item.ReleaseId
                         };
 
