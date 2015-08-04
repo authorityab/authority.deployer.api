@@ -12,6 +12,11 @@ namespace DeployerServices.Controllers
             var tcService = new TeamCityService();
             var octopusService = new OctopusService();
 
+            var a = octopusService.GetReleasesFromProject("projects-33");
+
+
+            var b = octopusService.GetEnvironmentsFromLifecycle();
+
             var allBuilds = tcService.GetAllBuilds();
             var latestBuild = allBuilds.OrderByDescending(x => x.FinishDate).FirstOrDefault();
 

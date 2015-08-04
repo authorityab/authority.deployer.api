@@ -76,6 +76,17 @@ namespace DeployerServices.Services
                                 var buildConfig = _client.BuildConfigs.ByConfigurationId(build.BuildTypeId);
                                 build.BuildConfig = buildConfig;
 
+                                var buildDestroyer = "Anonymous";
+                                var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(build.BuildTypeId);
+                                if (lastChange != null && lastChange.User != null)
+                                {
+                                    buildDestroyer = lastChange.User.Name;
+
+                                   
+                                    //buildDestroyer = lastChange.User.Name;
+                                }
+                                build.Changes.Change = new List<Change> {new Change {Username = buildDestroyer}};
+
                                 builds.Add(build);
                             }
                         }
@@ -119,7 +130,7 @@ namespace DeployerServices.Services
                 lastFailedBuild.BuildConfig = buildConfig;
 
                 var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(lastFailedBuild.BuildTypeId);
-                if (lastChange != null)
+                if (lastChange != null && lastChange.User != null)
                 {
                     buildDestroyer = lastChange.User.Name;
                 }

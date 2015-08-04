@@ -135,6 +135,8 @@
     <Compile Include="Classes\BuildStatus.cs" />
     <Compile Include="Classes\MultipartMediaTypeFormatter.cs" />
     <Compile Include="Controllers\BuildsController.cs" />
+    <Compile Include="Controllers\EnvironmentsController.cs" />
+    <Compile Include="Controllers\ReleasesController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\DeployController.cs" />
     <Compile Include="Controllers\ProjectsController.cs" />

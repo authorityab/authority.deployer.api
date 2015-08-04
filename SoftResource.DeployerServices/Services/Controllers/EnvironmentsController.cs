@@ -4,15 +4,14 @@ using Newtonsoft.Json;
 
 namespace DeployerServices.Controllers
 {
-    public class ProjectsController : ApiController
+    public class EnvironmentsController : ApiController
     {
         public string Get()
         {
             var octopusService = new OctopusService();
+            var environments = octopusService.GetEnvironmentsFromLifecycle();
 
-            var projects = octopusService.GetProjectsFromLifecycle();
-
-            return JsonConvert.SerializeObject(projects);
+            return JsonConvert.SerializeObject(environments);
         }
     }
 }
