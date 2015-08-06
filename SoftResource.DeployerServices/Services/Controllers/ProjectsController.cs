@@ -14,5 +14,15 @@ namespace DeployerServices.Controllers
 
             return JsonConvert.SerializeObject(projects);
         }
+
+        [HttpGet]
+        public string Info(string projectId)
+        {
+            var octopusService = new OctopusService();
+
+            var project = octopusService.GetProject(projectId);
+
+            return JsonConvert.SerializeObject(project);
+        }
     }
 }

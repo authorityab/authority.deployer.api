@@ -12,13 +12,13 @@ namespace DeployerServices.Models.ViewModels
             OctopusProjects = new List<DashboardProjectResource>();
         }
 
-        public List<Build> TeamCityBuilds { get; set; }
+        public List<Models.Build> TeamCityBuilds { get; set; }
 
         public List<DashboardProjectResource> OctopusProjects { get; set; }
 
-        public Build LatestBuild { get; set; }
+        public Models.Build LatestBuild { get; set; }
 
-        public Build LatestFailedBuild { get; set; }
+        public TeamCitySharp.DomainEntities.Build LatestFailedBuild { get; set; }
 
         public string BuildDestroyer { get; set; } 
     }

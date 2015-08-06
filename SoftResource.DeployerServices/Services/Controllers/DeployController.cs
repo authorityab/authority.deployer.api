@@ -21,11 +21,11 @@ namespace DeployerServices.Controllers
         }
 
         [HttpGet]
-        public string Status(string id)
+        public string Status(string taskId)
         {
             var octopusService = new OctopusService();
 
-            var task = octopusService.GetTaskProgress(id);
+            var task = octopusService.GetTaskProgress(taskId);
 
             return JsonConvert.SerializeObject(task);
         }
@@ -38,6 +38,16 @@ namespace DeployerServices.Controllers
             var deploys = octopusService.GetLatestDeploys(projectId);
 
             return JsonConvert.SerializeObject(deploys);
+        }
+
+        [HttpGet]
+        public string GetLatestDeployTasks(string projectId)
+        {
+            var octopusService = new OctopusService();
+
+            var tasks = octopusService.GetTasksFromLatestDeploys(projectId);
+
+            return JsonConvert.SerializeObject(tasks);
         }
     }
 }

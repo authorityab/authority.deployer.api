@@ -6,12 +6,20 @@ namespace DeployerServices.Controllers
 {
     public class EnvironmentsController : ApiController
     {
-        public string Get()
+        //public string Get()
+        //{
+        //    var octopusService = new OctopusService();
+        //    var environments = octopusService.GetEnvironmentsFromLifecycle();
+
+        //    return JsonConvert.SerializeObject(environments);
+        //}
+
+        public string Get(string projectId, string releaseId)
         {
             var octopusService = new OctopusService();
-            var environments = octopusService.GetEnvironmentsFromLifecycle();
+            var environmentPage = octopusService.GetEnvironmentPage(projectId, releaseId);
 
-            return JsonConvert.SerializeObject(environments);
+            return JsonConvert.SerializeObject(environmentPage);
         }
     }
 }

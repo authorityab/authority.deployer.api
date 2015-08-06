@@ -133,7 +133,8 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Classes\BuildStatus.cs" />
-    <Compile Include="Classes\MultipartMediaTypeFormatter.cs" />
+    <Compile Include="Classes\CacheKeys.cs" />
+    <Compile Include="Classes\CacheManager.cs" />
     <Compile Include="Controllers\BuildsController.cs" />
     <Compile Include="Controllers\EnvironmentsController.cs" />
     <Compile Include="Controllers\ReleasesController.cs" />
@@ -143,18 +144,18 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\OctopusProject.cs" />
-    <Compile Include="Models\TeamCityBuild.cs" />
-    <Compile Include="Models\TeamCityBuildInfo.cs" />
-    <Compile Include="Models\TeamCityBuildType.cs" />
-    <Compile Include="Models\TeamCityChange.cs" />
-    <Compile Include="Models\TeamCityLastChanges.cs" />
+    <Compile Include="Models\Build.cs" />
+    <Compile Include="Classes\DeployStatus.cs" />
+    <Compile Include="Models\DeployTask.cs" />
+    <Compile Include="Models\Environment.cs" />
+    <Compile Include="Models\EnvironmentPage.cs" />
+    <Compile Include="Models\ReleasePage.cs" />
+    <Compile Include="Models\Release.cs" />
     <Compile Include="Models\ViewModels\DebugViewModel.cs" />
     <Compile Include="Models\ViewModels\OctopusProjectViewModel.cs" />
     <Compile Include="Models\ViewModels\TeamCityBuildViewModel.cs" />
     <Compile Include="Services\OctopusService.cs" />
     <Compile Include="Services\TeamCityService.cs" />
-    <Compile Include="Models\TeamCityProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

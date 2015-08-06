@@ -56,12 +56,12 @@ namespace DeployerServices.Services
             return null;
         }
 
-        public List<Build> GetAllBuilds()
+        public List<Models.Build> GetAllBuilds()
         {
             try
             {
                 var projects = GetAllProjects();
-                var builds = new List<Build>();
+                var builds = new List<Models.Build>();
                 foreach (var project in projects)
                 {
                     var p = _client.Projects.ById(project.Id);
@@ -69,37 +69,45 @@ namespace DeployerServices.Services
                     {
                         foreach (var buildId in p.BuildTypes.BuildType.Select(x => x.Id))
                         {
-                            var build = _client.Builds.LastBuildByBuildConfigId(buildId);
-                            if (build != null)
+                            var tcBuild = _client.Builds.LastBuildByBuildConfigId(buildId);
+                            if (tcBuild != null)
                             {
+                                var build = new Models.Build();
 
-                                var buildConfig = _client.BuildConfigs.ByConfigurationId(build.BuildTypeId);
-                                build.BuildConfig = buildConfig;
+                                var buildConfig = _client.BuildConfigs.ByConfigurationId(tcBuild.BuildTypeId);
+
+                                build.ProjectName = buildConfig.ProjectName;
+                                build.StepName = buildConfig.Name;
+                                build.Status = tcBuild.Status;
+                                build.FinishDate = tcBuild.FinishDate;
 
                                 var buildDestroyer = "Anonymous";
-                                var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(build.BuildTypeId);
+                                var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(tcBuild.BuildTypeId);
                                 if (lastChange != null && lastChange.User != null)
                                 {
                                     buildDestroyer = lastChange.User.Name;
-
-                                   
-                                    //buildDestroyer = lastChange.User.Name;
                                 }
-                                build.Changes.Change = new List<Change> {new Change {Username = buildDestroyer}};
+
+                                build.LastBuild = string.Format("Last Build: {0}, {1}", tcBuild.FinishDate.ToString("dd MMMM yyyy HH:mm"),
+                                    buildDestroyer);
+
+                                build.BuildDestroyer = buildDestroyer;
+
+                                //tcBuild.Changes.Change = new List<Change> {new Change {Username = buildDestroyer}};
 
                                 builds.Add(build);
                             }
                         }
                     }
                 }
-                return builds;
+                return builds.OrderByDescending(x => x.FinishDate).ToList();
             }
             catch (JsonException ex)
             {
-                _log.Error("Get all projects failed.", ex);
+                _log.Error("Get all projects from tc failed.", ex);
             }
 
-            return new List<Build>();
+            return new List<Models.Build>();
         }
 
 
