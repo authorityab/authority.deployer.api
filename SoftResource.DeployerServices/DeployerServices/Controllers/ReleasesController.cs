@@ -6,14 +6,6 @@ namespace DeployerServices.Controllers
 {
     public class ReleasesController : ApiController
     {
-        //public string Get(string projectId)
-        //{
-        //    var octopusService = new OctopusService();
-        //    var releases = octopusService.GetReleasesFromProject(projectId);
-
-        //    return JsonConvert.SerializeObject(releases);
-        //}
-
         public string Get(string projectId)
         {
             var octopusService = new OctopusService();

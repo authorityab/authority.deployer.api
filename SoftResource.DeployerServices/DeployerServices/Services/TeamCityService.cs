@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Web.Configuration;
@@ -18,7 +19,6 @@ namespace DeployerServices.Services
         private readonly TeamCityClient _client;
 
         private readonly ILog _log = LogManager.GetLogger(typeof(TeamCityService));
-
 
         public TeamCityService()
         {
@@ -48,9 +48,9 @@ namespace DeployerServices.Services
                         where project.Id == projectId select project)
                         .ToList();
             }
-            catch (JsonException ex)
+            catch (Exception ex)
             {
-                _log.Error("Get all projects failed.", ex);
+                _log.Error("Get all projects from TC failed.", ex);
             }
 
             return null;
@@ -81,19 +81,17 @@ namespace DeployerServices.Services
                                 build.Status = tcBuild.Status;
                                 build.FinishDate = tcBuild.FinishDate;
 
-                                var buildDestroyer = "Anonymous";
+                                var lastModifiedBy = "Anonymous";
                                 var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(tcBuild.BuildTypeId);
                                 if (lastChange != null && lastChange.User != null)
                                 {
-                                    buildDestroyer = lastChange.User.Name;
+                                    lastModifiedBy = lastChange.User.Name;
                                 }
 
                                 build.LastBuild = string.Format("Last Build: {0}, {1}", tcBuild.FinishDate.ToString("dd MMMM yyyy HH:mm"),
-                                    buildDestroyer);
+                                    lastModifiedBy);
 
-                                build.BuildDestroyer = buildDestroyer;
-
-                                //tcBuild.Changes.Change = new List<Change> {new Change {Username = buildDestroyer}};
+                                build.LastModifiedBy = lastModifiedBy;
 
                                 builds.Add(build);
                             }
@@ -102,21 +100,25 @@ namespace DeployerServices.Services
                 }
                 return builds.OrderByDescending(x => x.FinishDate).ToList();
             }
-            catch (JsonException ex)
+            catch (Exception ex)
             {
-                _log.Error("Get all projects from tc failed.", ex);
+                _log.Error("Get all builds from TC failed.", ex);
             }
 
             return new List<Models.Build>();
         }
 
-
         public Build GetLatestFailedBuild(out string buildDestroyer)
         {
             buildDestroyer = "Anonymous";
 
+            
+
             try
             {
+
+                
+
                 var projects = GetAllProjects();
 
                 var failedBuilds = new List<Build>();
@@ -145,9 +147,9 @@ namespace DeployerServices.Services
 
                 return lastFailedBuild;
             }
-            catch (JsonException ex)
+            catch (Exception ex)
             {
-                _log.Error(string.Format("Get latest build failed."), ex);
+                _log.Error(string.Format("Get latest failed build from TC failed."), ex);
             }
 
             return null;

@@ -14,6 +14,6 @@ namespace DeployerServices.Models
 
         public string Status { get; set; }
 
-        public string BuildDestroyer { get; set; }
+        public string LastModifiedBy { get; set; }
     }
 }

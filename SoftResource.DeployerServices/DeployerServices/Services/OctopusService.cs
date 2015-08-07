@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data.Common;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 using DeployerServices.Classes;
 using DeployerServices.Models;
 using log4net;
 using Octopus.Client;
 using Octopus.Client.Model;
-using Octopus.Platform.Model;
-using Octopus.Platform.Variables;
-using Octopus.Platform.Web;
 using Environment = DeployerServices.Models.Environment;
 
 namespace DeployerServices.Services
@@ -41,7 +36,7 @@ namespace DeployerServices.Services
         private string ServerUrl { get; set; }
         private string ApiKey { get; set; }
         private readonly OctopusRepository _repository;
-        private CacheManager _cahManager = new CacheManager();
+        private readonly CacheManager _cahManager = new CacheManager();
 
         private readonly ILog _log = LogManager.GetLogger(typeof(OctopusService));
 
@@ -54,148 +49,28 @@ namespace DeployerServices.Services
             _repository = new OctopusRepository(endpoint);
         }
 
-        public string[] GetProjectIdsFromConfig()
-        {
-            return WebConfigurationManager.AppSettings["OctopusProjectsIds"].Split(',');
-        }
+        #region Private Methods
 
-        public string GetDevEnvironmentId()
-        {
-            return WebConfigurationManager.AppSettings["OctopusDevEnvironmentId"];
-        }
-
-        public string GetTstEnvironmentId()
-        {
-            return WebConfigurationManager.AppSettings["OctopusTstEnvironmentId"];
-        }
-
-        public string GetUatEnvironmentId()
-        {
-            return WebConfigurationManager.AppSettings["OctopusUatEnvironmentId"];
-        }
-
-        public string GetProEnvironmentId()
-        {
-            return WebConfigurationManager.AppSettings["OctopusProEnvironmentId"];
-        }
-
-        public string GetProLifecycleId()
+        private static string GetProLifecycleId()
         {
             return WebConfigurationManager.AppSettings["OctopusProLifecycleId"];
         }
 
-        public string GetDevLifecycleId()
+        private static string GetDevLifecycleId()
         {
             return WebConfigurationManager.AppSettings["OctopusDevLifecycleId"];
         }
 
-        public List<ProjectResource> GetAllProjects()
-        {
-            try
-            {
-                return _repository.Projects.FindAll();
-            }
-            catch (Exception e)
-            {
-                _log.Error("Get all projects failed.", e);
-            }
-
-            return null;
-        }
-
-
-        public ProjectResource GetProject(string projectId)
-        {
-            try
-            {
-                return _repository.Projects.Get(projectId);
-            }
-            catch (Exception e)
-            {
-                _log.Error("Get project failed.", e);
-            }
-
-            return null;
-        }
-
-
-        public ReleaseResource GetRelease(string releaseId)
-        {
-            try
-            {
-                return _repository.Releases.Get(releaseId);
-            }
-            catch (Exception e)
-            {
-                _log.Error("Get release failed.", e);
-            }
-
-            return null;
-        }
-
-        public DashboardResource GetDashboardDynamic()
-        {
-            try
-            {
-
-                var projectsIds = GetProjectIdsFromConfig();
-                var envIds = GetDevEnvironmentId();
-
-                var dash = _repository.Dashboards.GetDynamicDashboard(projectsIds, new[] { envIds });
-
-                return dash;
-            }
-            catch (Exception e)
-            {
-                _log.Error("Get dashboard dynamic failed.", e);
-            }
-
-            return null;
-        }
-
-        public List<ProjectResource> GetProjectsFromLifecycle()
-        {
-            try
-            {
-
-
-                var key = string.Format(CacheKeys.LifecycleProjects);
-                var projects = _cahManager.GetAndCache(
-                    key,
-                    60 * 30,
-                    () =>
-                    {
-                        var lifecycleId = GetDevLifecycleId();
-
-
-                        return _repository.Projects.FindAll()
-                            .Where(x => x.LifecycleId == lifecycleId)
-                            .ToList();;
-                    });
-
-                return projects;
-            }
-            catch (Exception e)
-            {
-                _log.Error("Get projects from lifecycle failed.", e);
-            }
-
-            return null;
-        }
-
-
-        public List<ReleaseResource> GetReleasesFromProject(string projectId)
+        private IEnumerable<ReleaseResource> GetReleasesFromProject(string projectId)
         {
             try
             {
                 //TODO: Maybe do a Take() or paginate?
-                var key = string.Format("{1}_{0}", CacheKeys.ReleasesFromProject, projectId);
+                var key = string.Format("{0}_{1}", CacheKeys.ReleasesFromProject, projectId);
                 var releases = _cahManager.GetAndCache(
                     key,
-                    60 * 30,
+                    900,
                     () => _repository.Releases.FindMany(x => x.ProjectId == projectId));
-
-
 
                 return releases;
             }
@@ -207,25 +82,7 @@ namespace DeployerServices.Services
             return null;
         }
 
-        //public List<DeploymentResource> GetDeploymentsFromProject(string projectId)
-        //{
-        //    try
-        //    {
-        //        _repository.Deployments.
-        //        //TODO: Maybe do a Take() or paginate?
-        //        var deployments = _repository.Deployments.FindMany(x => x.ProjectId == projectId);
-
-        //        return deployments;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _log.Error("Get deployments from project failed.", e);
-        //    }
-
-        //    return null;
-        //}
-
-        public List<string> GetEnvironmentIdsFromLifecycle()
+        private IEnumerable<string> GetEnvironmentIdsFromLifecycle()
         {
             try
             {
@@ -246,16 +103,14 @@ namespace DeployerServices.Services
             return null;
         }
 
-
-        public List<EnvironmentResource> GetEnvironmentsFromLifecycle()
+        private List<EnvironmentResource> GetEnvironmentsFromLifecycle()
         {
             try
             {
-                //var envList = new List<EnvironmentResource>();
                 var key = string.Format(CacheKeys.LifecycleEnvironments);
                 var envList = _cahManager.GetAndCache(
                     key,
-                    60 * 30,
+                    900,
                     () =>
                     {
                         var phases = _repository.Lifecycles.Get(GetDevLifecycleId()).Phases;
@@ -269,7 +124,6 @@ namespace DeployerServices.Services
                         return environments.Where(env => envIds.Any(x => x == env.Id)).ToList();
                     });
 
-
                 return envList;
             }
             catch (Exception e)
@@ -280,22 +134,84 @@ namespace DeployerServices.Services
             return null;
         }
 
+        #endregion Private Methods
+
+        #region Public Methods
+
+        public List<ProjectResource> GetAllProjects()
+        {
+            try
+            {
+                return _repository.Projects.FindAll();
+            }
+            catch (Exception e)
+            {
+                _log.Error("Get all projects failed.", e);
+            }
+
+            return null;
+        }
+
+        public ProjectResource GetProject(string projectId)
+        {
+            try
+            {
+                return _repository.Projects.Get(projectId);
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Get project failed. Id: {0}", projectId),  e);
+            }
+
+            return null;
+        }
+
+        public ReleaseResource GetRelease(string releaseId)
+        {
+            try
+            {
+                return _repository.Releases.Get(releaseId);
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Get release failed. ReleaseId: {0}", releaseId), e);
+            }
+
+            return null;
+        }
+
+        public List<ProjectResource> GetProjectsFromLifecycle()
+        {
+            try
+            {
+                var key = string.Format(CacheKeys.LifecycleProjects);
+                var projects = _cahManager.GetAndCache(
+                    key,
+                    900,
+                    () =>
+                    {
+                        var lifecycleId = GetDevLifecycleId();
+
+
+                        return _repository.Projects.FindAll()
+                            .Where(x => x.LifecycleId == lifecycleId)
+                            .ToList(); ;
+                    });
+
+                return projects;
+            }
+            catch (Exception e)
+            {
+                _log.Error("Get projects from lifecycle failed.", e);
+            }
+
+            return null;
+        }
+
         public string ReleaseTheCracken(string projectId, string releaseId, string environmentId)
         {
             try
             {
-                // TODO: Find a way to not have this two environments hard coded!
-                //var sourceEnvId = GetDevEnvironmentId();
-                //var destinationEnvId = GetProEnvironmentId();
-
-                //var deployments = _repository.Deployments.FindAll(new[] {projectId}, new[] {sourceEnvId}).Items;
-
-                //var items = GetDashboardDynamic().Items;
-                //if (deployments.Any())
-                //{
-                //var item = deployments.FirstOrDefault(); //(x => x.EnvironmentId == sourceEnvId && x.ProjectId == projectId);
-                //if (item != null)
-                //{
                 var deploymentResource = new DeploymentResource
                 {
                     ProjectId = projectId,
@@ -306,31 +222,23 @@ namespace DeployerServices.Services
                 var deployment = _repository.Deployments.Create(deploymentResource);
 
                 return deployment.TaskId;
-                //}
-                //}
             }
             catch (Exception e)
             {
-                _log.Error("The release of the Cracken failed.", e);
+                _log.Error(string.Format("The release of the Cracken failed. ProjectId: {0}, ReleaseId: {1}, environmentId: {2}", projectId, releaseId, environmentId), e);
             }
 
             return null;
         }
 
-
         public List<DeploymentResource> GetLatestDeploys(string projectId)
         {
             try
             {
-                
-
-                //return latestDeploys;
-
-
                 var key = string.Format("{0}_{1}", CacheKeys.LatestDeployTaskFromProject, projectId);
                 var deploys = _cahManager.GetAndCache(
                     key,
-                    60 * 30,
+                    900,
                     () =>
                     {
                         var environments = GetEnvironmentIdsFromLifecycle();
@@ -353,29 +261,20 @@ namespace DeployerServices.Services
             }
             catch (Exception e)
             {
-                _log.Error("Get latest deploys failed.", e);
+                _log.Error(string.Format("Get latest deploys failed. ProjectId: {0}", projectId), e);
             }
 
             return null;
-
         }
-
 
         public List<TaskResource> GetTasksFromLatestDeploys(string projectId)
         {
             try
             {
-
-                //var tids = taskIds.Split(',');
-               
-
-                //return tasks;
-
-
                 var key = string.Format("{0}_{1}", CacheKeys.LatestDeployTaskFromProject, projectId);
                 var taskList = _cahManager.GetAndCache(
                     key,
-                    60 * 30,
+                    900,
                     () =>
                     {
                         var deploys = GetLatestDeploys(projectId);
@@ -395,20 +294,17 @@ namespace DeployerServices.Services
             }
             catch (Exception e)
             {
-                _log.Error("Get tasks from latest deploys failed.", e);
+                _log.Error(string.Format("Get tasks from latest deploys failed. ProjectId: {0}", projectId), e);
             }
 
             return null;
-
         }
 
         public DeployTask GetTaskProgress(string taskId)
         {
             try
             {
-
                 var task = _repository.Tasks.Get(taskId);
-
 
                 var deployTask = new DeployTask
                 {
@@ -427,13 +323,11 @@ namespace DeployerServices.Services
             }
             catch (Exception e)
             {
-                _log.Error("Polling of task failed.", e);
+                _log.Error(string.Format("Polling of task failed. TaskId: {0}", taskId), e);
             }
 
             return null;
-
         }
-
 
         public ReleasePage GetReleasePage(string projectId)
         {
@@ -482,11 +376,10 @@ namespace DeployerServices.Services
             }
             catch (Exception e)
             {
-                _log.Error("Get release page failed.", e);
+                _log.Error(string.Format("Get release page failed. ProjectId: {0}", projectId), e);
             }
 
             return null;
-
         }
 
         public EnvironmentPage GetEnvironmentPage(string projectId, string releaseId)
@@ -497,7 +390,6 @@ namespace DeployerServices.Services
 
                 var project = GetProject(projectId);
                 var environments = GetEnvironmentsFromLifecycle();
-                //var releases = GetReleasesFromProject(projectId);
                 var latestDeploys = GetLatestDeploys(projectId);
                 var tasks = GetTasksFromLatestDeploys(projectId);
 
@@ -515,15 +407,15 @@ namespace DeployerServices.Services
                         Name = env.Name
                     };
 
-                    foreach (var deploy in latestDeploys)
+                    if (latestDeploys.Any(x => x.EnvironmentId == env.Id))
                     {
-                        if (deploy.EnvironmentId == env.Id)
-                        {
-                            environment.LastDeploy = string.Format("Last Deploy: {0}", deploy.Created.ToString("dd MMMM yyyy HH:mm"));
+                        var deploy = latestDeploys.Find(x => x.EnvironmentId == env.Id);
 
-                            var release = _repository.Releases.Get(deploy.ReleaseId);
-                            environment.ReleaseVersion = release.Version;
-                        }
+                        environment.LastDeploy = string.Format("Last Deploy: {0}",
+                            deploy.Created.ToString("dd MMMM yyyy HH:mm"));
+
+                        var release = _repository.Releases.Get(deploy.ReleaseId);
+                        environment.ReleaseVersion = release.Version;
 
                         foreach (var task in tasks)
                         {
@@ -537,17 +429,14 @@ namespace DeployerServices.Services
                                 {
                                     environment.Status = DeployStatus.Fail;
                                 }
-
                             }
                         }
-
-                        //foreach (var release in releases)
-                        //{
-                        //    if (release.Id == deploy.ReleaseId)
-                        //    {
-                        //        environment.ReleaseVersion = release.Version;
-                        //    }   
-                        //}
+                    }
+                    else
+                    {
+                        environment.LastDeploy = "The selected project has never been deployed to this environment";
+                        environment.ReleaseVersion = string.Empty;
+                        environment.Status = DeployStatus.NotDeployed;
                     }
 
                     environmentPage.Environments.Add(environment);
@@ -558,12 +447,15 @@ namespace DeployerServices.Services
             }
             catch (Exception e)
             {
-                _log.Error("Get release page failed.", e);
+                _log.Error(string.Format("Get environment page failed. ProjectId: {0}, ReleaseId: {1}", projectId, releaseId), e);
             }
 
             return null;
-
         }
+
+        #endregion Public Methods
+
+       
 
 
     }

@@ -30,24 +30,24 @@ namespace DeployerServices.Controllers
             return JsonConvert.SerializeObject(task);
         }
 
-        [HttpGet]
-        public string GetLatest(string projectId)
-        {
-            var octopusService = new OctopusService();
+        //[HttpGet]
+        //public string GetLatest(string projectId)
+        //{
+        //    var octopusService = new OctopusService();
 
-            var deploys = octopusService.GetLatestDeploys(projectId);
+        //    var deploys = octopusService.GetLatestDeploys(projectId);
 
-            return JsonConvert.SerializeObject(deploys);
-        }
+        //    return JsonConvert.SerializeObject(deploys);
+        //}
 
-        [HttpGet]
-        public string GetLatestDeployTasks(string projectId)
-        {
-            var octopusService = new OctopusService();
+        //[HttpGet]
+        //public string GetLatestDeployTasks(string projectId)
+        //{
+        //    var octopusService = new OctopusService();
 
-            var tasks = octopusService.GetTasksFromLatestDeploys(projectId);
+        //    var tasks = octopusService.GetTasksFromLatestDeploys(projectId);
 
-            return JsonConvert.SerializeObject(tasks);
-        }
+        //    return JsonConvert.SerializeObject(tasks);
+        //}
     }
 }

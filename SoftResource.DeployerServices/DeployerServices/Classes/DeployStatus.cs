@@ -4,6 +4,7 @@
     {
         Success,
         Fail,
-        InProgress
+        InProgress,
+        NotDeployed
     }
 }
