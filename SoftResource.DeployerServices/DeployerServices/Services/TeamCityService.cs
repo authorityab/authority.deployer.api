@@ -139,6 +139,8 @@ namespace DeployerServices.Services
                 var buildConfig = _client.BuildConfigs.ByConfigurationId(lastFailedBuild.BuildTypeId);
                 lastFailedBuild.BuildConfig = buildConfig;
 
+                //_client.Builds.
+
                 var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(lastFailedBuild.BuildTypeId);
                 if (lastChange != null && lastChange.User != null)
                 {

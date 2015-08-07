@@ -434,7 +434,7 @@ namespace DeployerServices.Services
                     }
                     else
                     {
-                        environment.LastDeploy = "The selected project has never been deployed to this environment";
+                        environment.LastDeploy = "The project has never been deployed to this environment";
                         environment.ReleaseVersion = string.Empty;
                         environment.Status = DeployStatus.NotDeployed;
                     }
