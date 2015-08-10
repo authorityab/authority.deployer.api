@@ -7,6 +7,12 @@ namespace DeployerServices.Classes
 {
     public class CacheKeys
     {
+        public const string AllProjects = "AllProjects";
+
+        public const string AllEnvironments = "AllEnvironments";
+
+        public const string EnvironmentsFromProject = "EnvironmentsFromProject";
+
         public const string LifecycleEnvironments = "LifeCycleEnvironments";
 
         public const string LifecycleProjects = "LifecycleProjects";

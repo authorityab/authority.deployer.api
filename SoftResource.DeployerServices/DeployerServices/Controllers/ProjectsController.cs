@@ -10,7 +10,7 @@ namespace DeployerServices.Controllers
         {
             var octopusService = new OctopusService();
 
-            var projects = octopusService.GetProjectsFromLifecycle();
+            var projects = octopusService.GetAllProjects(); //octopusService.GetProjectsFromLifecycle();
 
             return JsonConvert.SerializeObject(projects);
         }

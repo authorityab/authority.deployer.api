@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Web.Configuration;
 using log4net;
-using Newtonsoft.Json;
 using TeamCitySharp;
 using TeamCitySharp.DomainEntities;
 
@@ -31,36 +29,11 @@ namespace DeployerServices.Services
             _client.Connect(Username, Password);
         }
 
-        private static IEnumerable<string> GetProjectsIdsFromConfig()
-        {
-            return ConfigurationManager.AppSettings["TeamCityMonitorProjects"].Split(',');
-        }
-
-        public List<Project> GetAllProjects()
-        {
-            try
-            {
-                var projectsIds = GetProjectsIdsFromConfig();
-                var projects = _client.Projects.All();
-
-                return (from projectId in projectsIds 
-                        from project in projects 
-                        where project.Id == projectId select project)
-                        .ToList();
-            }
-            catch (Exception ex)
-            {
-                _log.Error("Get all projects from TC failed.", ex);
-            }
-
-            return null;
-        }
-
         public List<Models.Build> GetAllBuilds()
         {
             try
             {
-                var projects = GetAllProjects();
+                var projects = _client.Projects.All();
                 var builds = new List<Models.Build>();
                 foreach (var project in projects)
                 {
@@ -112,14 +85,9 @@ namespace DeployerServices.Services
         {
             buildDestroyer = "Anonymous";
 
-            
-
             try
             {
-
-                
-
-                var projects = GetAllProjects();
+                var projects = _client.Projects.All();
 
                 var failedBuilds = new List<Build>();
                 foreach (var project in projects)
@@ -138,8 +106,6 @@ namespace DeployerServices.Services
 
                 var buildConfig = _client.BuildConfigs.ByConfigurationId(lastFailedBuild.BuildTypeId);
                 lastFailedBuild.BuildConfig = buildConfig;
-
-                //_client.Builds.
 
                 var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(lastFailedBuild.BuildTypeId);
                 if (lastChange != null && lastChange.User != null)
