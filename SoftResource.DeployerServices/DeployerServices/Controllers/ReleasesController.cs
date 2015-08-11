@@ -13,8 +13,5 @@ namespace DeployerServices.Controllers
 
             return JsonConvert.SerializeObject(release);
         }
-
-
-        
     }
 }

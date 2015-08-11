@@ -50,6 +50,34 @@ namespace DeployerServices.Services
 
         #region Private Methods
 
+        private ProjectResource GetProject(string projectId)
+        {
+            try
+            {
+                return _repository.Projects.Get(projectId);
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Get project failed. Id: {0}", projectId), e);
+            }
+
+            return null;
+        }
+
+        private ReleaseResource GetRelease(string releaseId)
+        {
+            try
+            {
+                return _repository.Releases.Get(releaseId);
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Get release failed. ReleaseId: {0}", releaseId), e);
+            }
+
+            return null;
+        }
+
         private IEnumerable<ReleaseResource> GetReleasesFromProject(string projectId)
         {
             try
@@ -65,31 +93,7 @@ namespace DeployerServices.Services
             }
             catch (Exception e)
             {
-                _log.Error("Get releases from project failed.", e);
-            }
-
-            return null;
-        }
-
-        private IEnumerable<string> GetEnvironmentIdsFromProject(string projectId)
-        {
-            try
-            {
-                var project = _repository.Projects.Get(projectId);
-                var lifecycleId = project.LifecycleId;
-
-                var phases = _repository.Lifecycles.Get(lifecycleId).Phases;
-                var environments = new List<string>();
-                foreach (var phase in phases.Where(phase => phase.OptionalDeploymentTargets != null))
-                {
-                    environments.AddRange(phase.OptionalDeploymentTargets.ToList());
-                }
-
-                return environments;
-            }
-            catch (Exception e)
-            {
-                _log.Error("Get environment ids from lifecycle failed.", e);
+                _log.Error(string.Format("Get releases from project failed. ProjectId: {0}", projectId), e);
             }
 
             return null;
@@ -128,82 +132,27 @@ namespace DeployerServices.Services
             return null;
         }
 
-        #endregion Private Methods
-
-        #region Public Methods
-
-        public List<ProjectResource> GetAllProjects()
+        private List<ProjectGroupResource> GetAllProjectGroups()
         {
             try
             {
-                var key = string.Format(CacheKeys.LifecycleProjects);
-                var projects = _cahManager.GetAndCache(
+                var key = string.Format(CacheKeys.AllProjectGroups);
+                var projectGroups = _cahManager.GetAndCache(
                     key,
                     900,
-                    () => _repository.Projects.FindAll());
+                    () => _repository.ProjectGroups.FindAll());
 
-                return projects;
+                return projectGroups;
             }
             catch (Exception e)
             {
-                _log.Error("Get all projects failed.", e);
+                _log.Error("Get all project groups failed.", e);
             }
 
             return null;
         }
 
-        public ProjectResource GetProject(string projectId)
-        {
-            try
-            {
-                return _repository.Projects.Get(projectId);
-            }
-            catch (Exception e)
-            {
-                _log.Error(string.Format("Get project failed. Id: {0}", projectId), e);
-            }
-
-            return null;
-        }
-
-        public ReleaseResource GetRelease(string releaseId)
-        {
-            try
-            {
-                return _repository.Releases.Get(releaseId);
-            }
-            catch (Exception e)
-            {
-                _log.Error(string.Format("Get release failed. ReleaseId: {0}", releaseId), e);
-            }
-
-            return null;
-        }
-
-        public string ReleaseTheCracken(string projectId, string releaseId, string environmentId)
-        {
-            try
-            {
-                var deploymentResource = new DeploymentResource
-                {
-                    ProjectId = projectId,
-                    EnvironmentId = environmentId,
-                    ReleaseId = releaseId
-                };
-
-                var deployment = _repository.Deployments.Create(deploymentResource);
-
-                return deployment.TaskId;
-            }
-            catch (Exception e)
-            {
-                _log.Error(string.Format("The release of the Cracken failed. ProjectId: {0}, ReleaseId: {1}, environmentId: {2}", projectId, releaseId, environmentId), e);
-            }
-
-            return null;
-        }
-
-        public List<DeploymentResource> GetLatestDeploys(string projectId)
+        private List<DeploymentResource> GetLatestDeploys(string projectId)
         {
             try
             {
@@ -213,11 +162,11 @@ namespace DeployerServices.Services
                     900,
                     () =>
                     {
-                        var environments = GetEnvironmentIdsFromProject(projectId);
+                        var environments = GetEnvironmentsFromProject(projectId);
                         var latestDeploys = new List<DeploymentResource>();
                         foreach (var env in environments)
                         {
-                            var deployments = _repository.Deployments.FindAll(new[] { projectId }, new[] { env });
+                            var deployments = _repository.Deployments.FindAll(new[] { projectId }, new[] { env.Id });
                             if (deployments != null && deployments.TotalResults > 0)
                             {
                                 var deploy = deployments.Items.FirstOrDefault();
@@ -239,7 +188,7 @@ namespace DeployerServices.Services
             return null;
         }
 
-        public List<TaskResource> GetTasksFromLatestDeploys(string projectId)
+        private List<TaskResource> GetTasksFromLatestDeploys(string projectId)
         {
             try
             {
@@ -271,30 +220,45 @@ namespace DeployerServices.Services
             return null;
         }
 
-        public DeployTask GetTaskProgress(string taskId)
+        #endregion Private Methods
+
+        #region Public Methods
+
+        public List<Project> GetAllProjects()
         {
             try
             {
-                var task = _repository.Tasks.Get(taskId);
+                var projectGroups = GetAllProjectGroups();
+                var key = string.Format(CacheKeys.AllProjects);
+                return _cahManager.GetAndCache(
+                     key,
+                     900,
+                     () =>
+                     {
+                         var projectList = new List<Project>();
+                         var projects = _repository.Projects.FindAll();
+                         foreach (var project in projects)
+                         {
+                             var p = new Project(project.Id)
+                             {
+                                 Name = project.Name,
+                                 Description = project.Description,
+                             };
 
-                var deployTask = new DeployTask
-                {
-                    Id = taskId,
-                    CompletedTime =
-                        !task.CompletedTime.HasValue
-                            ? string.Empty
-                            : string.Format("Last Deploy: {0}", task.CompletedTime.Value.ToString("dd MMMM yyyy HH:mm")),
-                    State = task.State.ToString(),
-                    FinishedSuccessfully = task.FinishedSuccessfully,
-                    HasWarningOrErrors = task.HasWarningsOrErrors,
-                    IsCompleted = task.IsCompleted
-                };
+                             var p2 = project;
+                             var projectGroup = projectGroups.FirstOrDefault(x => x.Id == p2.ProjectGroupId);
 
-                return deployTask;
+                             p.GroupName = projectGroup != null ? projectGroup.Name : string.Empty;
+
+                             projectList.Add(p);
+                         }
+
+                         return projectList.OrderBy(x => x.GroupName).ThenBy(x => x.Name).ToList();
+                     });
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("Polling of task failed. TaskId: {0}", taskId), e);
+                _log.Error("Get all projects failed.", e);
             }
 
             return null;
@@ -322,7 +286,7 @@ namespace DeployerServices.Services
                         Id = release.Id,
                         Version = release.Version,
                         Assembled =
-                            string.Format("Assembled: {0}, {1}", release.Assembled.ToString("dd MMMM yyyy HH:mm"), release.LastModifiedBy),
+                            string.Format("Assembled: {0}{1}", release.Assembled.ToString("dd MMMM yyyy HH:mm"), release.LastModifiedBy ?? ", " + release.LastModifiedBy),
                         ReleaseNotes = release.ReleaseNotes
                     };
 
@@ -419,6 +383,58 @@ namespace DeployerServices.Services
             catch (Exception e)
             {
                 _log.Error(string.Format("Get environment page failed. ProjectId: {0}, ReleaseId: {1}", projectId, releaseId), e);
+            }
+
+            return null;
+        }
+
+        public DeployTask GetTaskProgress(string taskId)
+        {
+            try
+            {
+                var task = _repository.Tasks.Get(taskId);
+
+                var deployTask = new DeployTask
+                {
+                    Id = taskId,
+                    CompletedTime =
+                        !task.CompletedTime.HasValue
+                            ? string.Empty
+                            : string.Format("Last Deploy: {0}", task.CompletedTime.Value.ToString("dd MMMM yyyy HH:mm")),
+                    State = task.State.ToString(),
+                    FinishedSuccessfully = task.FinishedSuccessfully,
+                    HasWarningOrErrors = task.HasWarningsOrErrors,
+                    IsCompleted = task.IsCompleted
+                };
+
+                return deployTask;
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Polling of task failed. TaskId: {0}", taskId), e);
+            }
+
+            return null;
+        }
+
+        public string ReleaseTheCracken(string projectId, string releaseId, string environmentId)
+        {
+            try
+            {
+                var deploymentResource = new DeploymentResource
+                {
+                    ProjectId = projectId,
+                    EnvironmentId = environmentId,
+                    ReleaseId = releaseId
+                };
+
+                var deployment = _repository.Deployments.Create(deploymentResource);
+
+                return deployment.TaskId;
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("The release of the Cracken failed. ProjectId: {0}, ReleaseId: {1}, environmentId: {2}", projectId, releaseId, environmentId), e);
             }
 
             return null;
