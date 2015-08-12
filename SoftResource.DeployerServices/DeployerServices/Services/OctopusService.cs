@@ -11,7 +11,7 @@ using Environment = DeployerServices.Models.Environment;
 
 namespace DeployerServices.Services
 {
-    public class OctopusService
+    public class OctopusService : IOctopusService
     {
         /*
          * Octopus Environment ID
@@ -35,17 +35,19 @@ namespace DeployerServices.Services
         private string ServerUrl { get; set; }
         private string ApiKey { get; set; }
         private readonly OctopusRepository _repository;
-        private readonly CacheManager _cahManager = new CacheManager();
+        private readonly ICacheManager _cahManager;
 
         private readonly ILog _log = LogManager.GetLogger(typeof(OctopusService));
 
-        public OctopusService()
+        public OctopusService(ICacheManager cacheManager)
         {
             ServerUrl = ConfigurationManager.AppSettings["OctopusServerUrl"];
             ApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
 
             var endpoint = new OctopusServerEndpoint(ServerUrl, ApiKey);
             _repository = new OctopusRepository(endpoint);
+
+            _cahManager = cacheManager;
         }
 
         #region Private Methods
@@ -83,13 +85,7 @@ namespace DeployerServices.Services
             try
             {
                 //TODO: Maybe do a Take() or paginate?
-                var key = string.Format("{0}_{1}", CacheKeys.ReleasesFromProject, projectId);
-                var releases = _cahManager.GetAndCache(
-                    key,
-                    900,
-                    () => _repository.Releases.FindMany(x => x.ProjectId == projectId));
-
-                return releases;
+               return _repository.Releases.FindMany(x => x.ProjectId == projectId);
             }
             catch (Exception e)
             {
@@ -166,7 +162,7 @@ namespace DeployerServices.Services
                         var latestDeploys = new List<DeploymentResource>();
                         foreach (var env in environments)
                         {
-                            var deployments = _repository.Deployments.FindAll(new[] { projectId }, new[] { env.Id });
+                            var deployments = _repository.Deployments.FindAll(new[] {projectId}, new[] {env.Id});
                             if (deployments != null && deployments.TotalResults > 0)
                             {
                                 var deploy = deployments.Items.FirstOrDefault();
@@ -429,6 +425,8 @@ namespace DeployerServices.Services
                 };
 
                 var deployment = _repository.Deployments.Create(deploymentResource);
+
+                _cahManager.Remove(string.Format("{0}_{1}", CacheKeys.LatestDeploysFromProject, projectId));
 
                 return deployment.TaskId;
             }

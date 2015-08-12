@@ -38,6 +38,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Integration.WebApi">
+      <HintPath>..\packages\Autofac.WebApi2.3.4.0\lib\net45\Autofac.Integration.WebApi.dll</HintPath>
+    </Reference>
     <Reference Include="EasyHttp">
       <HintPath>..\packages\EasyHttp.1.6.1.0\lib\net40\EasyHttp.dll</HintPath>
     </Reference>
@@ -121,9 +127,11 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Classes\AutofacConfiguration.cs" />
     <Compile Include="Classes\BuildStatus.cs" />
     <Compile Include="Classes\CacheKeys.cs" />
     <Compile Include="Classes\CacheManager.cs" />
+    <Compile Include="Classes\ICacheManager.cs" />
     <Compile Include="Controllers\BuildsController.cs" />
     <Compile Include="Controllers\EnvironmentsController.cs" />
     <Compile Include="Controllers\ReleasesController.cs" />
@@ -145,6 +153,8 @@
     <Compile Include="Models\ViewModels\DebugViewModel.cs" />
     <Compile Include="Models\ViewModels\OctopusProjectViewModel.cs" />
     <Compile Include="Models\ViewModels\TeamCityBuildViewModel.cs" />
+    <Compile Include="Services\IOctopusService.cs" />
+    <Compile Include="Services\ITeamCityService.cs" />
     <Compile Include="Services\OctopusService.cs" />
     <Compile Include="Services\TeamCityService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -6,11 +6,16 @@ namespace DeployerServices.Controllers
 {
     public class ProjectsController : ApiController
     {
+        private readonly IOctopusService _octopusService;
+
+        public ProjectsController(IOctopusService octopusService)
+        {
+            _octopusService = octopusService;
+        }
+
         public string Get()
         {
-            var octopusService = new OctopusService();
-
-            var projects = octopusService.GetAllProjects();
+            var projects = _octopusService.GetAllProjects();
 
             return JsonConvert.SerializeObject(projects);
         }

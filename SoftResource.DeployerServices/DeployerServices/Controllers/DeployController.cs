@@ -6,6 +6,13 @@ namespace DeployerServices.Controllers
 {
     public class DeployController : ApiController
     {
+        private readonly IOctopusService _octopusService;
+
+        public DeployController(IOctopusService octopusService)
+        {
+            _octopusService = octopusService;
+        }
+
         [HttpPost]
         public string Post([FromBody]dynamic data)
         {
@@ -13,9 +20,7 @@ namespace DeployerServices.Controllers
             string releaseId = data.releaseId;
             string environmentId = data.environmentId;
 
-
-            var octopusService = new OctopusService();
-            var taskId = octopusService.ReleaseTheCracken(projectId, releaseId, environmentId);
+            var taskId = _octopusService.ReleaseTheCracken(projectId, releaseId, environmentId);
 
             return taskId;
         }
@@ -23,9 +28,7 @@ namespace DeployerServices.Controllers
         [HttpGet]
         public string Status(string taskId)
         {
-            var octopusService = new OctopusService();
-
-            var task = octopusService.GetTaskProgress(taskId);
+            var task = _octopusService.GetTaskProgress(taskId);
 
             return JsonConvert.SerializeObject(task);
         }

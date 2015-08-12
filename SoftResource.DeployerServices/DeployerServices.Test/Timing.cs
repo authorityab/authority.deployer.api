@@ -8,13 +8,13 @@ namespace DeployerServices.Test
     [TestClass]
     public class Timing
     {
-        private OctopusService _octopusService;
+        private IOctopusService _octopusService;
 
         [TestInitialize]
-        public void Setup()
+        public void Setup(IOctopusService octopusService)
         {
-            _octopusService = new OctopusService();
-            
+            _octopusService = octopusService;
+
         }
 
         [TestMethod]

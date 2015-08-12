@@ -12,7 +12,7 @@ namespace DeployerServices.Classes
     /// <summary>
     /// Contains methods to make caching easier.
     /// </summary>
-    public class CacheManager
+    public class CacheManager : ICacheManager
     {
         // Check out: http://stackoverflow.com/questions/5578744/doing-locking-in-asp-net-correctly
         public static readonly ConcurrentDictionary<string, object> MiniLocks = new ConcurrentDictionary<string, object>();

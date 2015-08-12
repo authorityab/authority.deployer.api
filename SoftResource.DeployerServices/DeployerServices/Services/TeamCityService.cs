@@ -8,7 +8,7 @@ using TeamCitySharp.DomainEntities;
 
 namespace DeployerServices.Services
 {
-    public class TeamCityService
+    public class TeamCityService : ITeamCityService
     {
         private string Username { get; set; }
         private string Password { get; set; }

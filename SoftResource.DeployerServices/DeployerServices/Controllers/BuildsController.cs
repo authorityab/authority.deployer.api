@@ -6,11 +6,18 @@ namespace DeployerServices.Controllers
 {
     public class BuildsController : ApiController
     {
+        private readonly ITeamCityService _teamCityService;
+
+        public BuildsController(ITeamCityService teamCityService)
+        {
+            _teamCityService = teamCityService;
+        }
+
         public string Get()
         {
-            var tcService = new TeamCityService();
+            //var tcService = new TeamCityService();
 
-            var builds = tcService.GetAllBuilds();
+            var builds = _teamCityService.GetAllBuilds();
 
             return JsonConvert.SerializeObject(builds);
         }
@@ -18,10 +25,8 @@ namespace DeployerServices.Controllers
         [HttpGet]
         public string LatestFailed()
         {
-            var tcService = new TeamCityService();
-
             string buildDestroyer;
-            var latestFailed = tcService.GetLatestFailedBuild(out buildDestroyer);
+            var latestFailed = _teamCityService.GetLatestFailedBuild(out buildDestroyer);
 
             var build = new
             {
