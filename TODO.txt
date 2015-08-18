@@ -1,0 +1,8 @@
+* Vad ska hända när en deploy är klar? (redirectas till dashboard? nånting annat?)
+
+* Om en deploy falerar visa den senaste lyckade release/versionen i "Release Page". Nu visas den senaste deployen alltid, även    om den falerade. (Detta behövs bara om en rollback eller liknande gjort automatiskt av octopus, eller att deployen failade   innan den han göra något och den förgående releasen är kvar)
+
+* Ny Design? inte vertikal?
+
+* Ska vi ha projektbilder?
+
