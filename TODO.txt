@@ -6,3 +6,4 @@
 
 * Ska vi ha projektbilder?
 
+* Möjligtvis göra TC pollingen här istället för i i node? windows service?
