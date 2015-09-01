@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Test", "Services.Test\Services.Test.csproj", "{AF5C9501-E891-4589-961F-9CD6928F789F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deployer.Api.Test", "Deployer.Api.Test\Deployer.Api.Test.csproj", "{AF5C9501-E891-4589-961F-9CD6928F789F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{28CB3EFF-D6BA-452A-802F-F6D222C6F8CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deployer.Api", "Deployer.Api\Deployer.Api.csproj", "{28CB3EFF-D6BA-452A-802F-F6D222C6F8CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
