@@ -1,9 +1,13 @@
 ﻿using System.Web.Mvc;
+using log4net;
+using ILog = log4net.ILog;
 
 namespace Deployer.Api.Controllers
 {
     public class TestController : Controller
     {
+        private readonly ILog _log = LogManager.GetLogger(typeof(TestController));
+
         public ActionResult Index()
         {
             //var tcService = new TeamCityService();

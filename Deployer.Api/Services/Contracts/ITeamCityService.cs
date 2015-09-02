@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Deployer.Api.Services
+namespace Deployer.Api.Services.Contracts
 {
     public interface ITeamCityService
     {

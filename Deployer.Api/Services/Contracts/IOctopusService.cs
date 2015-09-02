@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Deployer.Api.Models;
 
-namespace Deployer.Api.Services
+namespace Deployer.Api.Services.Contracts
 {
     public interface IOctopusService
     {

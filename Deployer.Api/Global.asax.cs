@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Deployer.Api;
 using Deployer.Api.Classes;
+using log4net.Config;
 
 namespace Deployer.Services
 {
@@ -17,7 +18,9 @@ namespace Deployer.Services
             GlobalConfiguration.Configure(WebApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);       
      
-            AutofacConfiguration.InitializeIoc();
+            AutofacConfig.InitializeIoc();
+
+            XmlConfigurator.Configure();
         }
     }
 }

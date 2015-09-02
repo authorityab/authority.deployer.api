@@ -129,6 +129,7 @@
     <Content Include="Global.asax" />
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\Test\Index.cshtml" />
     <Content Include="Views\Test\sd.txt" />
@@ -137,7 +138,7 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Classes\AutofacConfiguration.cs" />
+    <Compile Include="Classes\AutofacConfig.cs" />
     <Compile Include="Classes\BuildStatus.cs" />
     <Compile Include="Classes\CacheKeys.cs" />
     <Compile Include="Classes\CacheManager.cs" />
@@ -163,9 +164,9 @@
     <Compile Include="Models\ViewModels\DebugViewModel.cs" />
     <Compile Include="Models\ViewModels\OctopusProjectViewModel.cs" />
     <Compile Include="Models\ViewModels\TeamCityBuildViewModel.cs" />
-    <Compile Include="Services\INodeService.cs" />
-    <Compile Include="Services\IOctopusService.cs" />
-    <Compile Include="Services\ITeamCityService.cs" />
+    <Compile Include="Services\Contracts\INodeService.cs" />
+    <Compile Include="Services\Contracts\IOctopusService.cs" />
+    <Compile Include="Services\Contracts\ITeamCityService.cs" />
     <Compile Include="Services\NodeService.cs" />
     <Compile Include="Services\OctopusService.cs" />
     <Compile Include="Services\TeamCityService.cs" />
@@ -185,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Ioc\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

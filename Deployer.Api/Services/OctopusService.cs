@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Linq;
 using Deployer.Api.Classes;
 using Deployer.Api.Models;
+using Deployer.Api.Services.Contracts;
 using log4net;
 using Octopus.Client;
 using Octopus.Client.Model;

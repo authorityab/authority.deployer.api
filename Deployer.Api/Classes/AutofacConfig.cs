@@ -5,10 +5,11 @@ using Autofac;
 using Autofac.Integration.Mvc;
 using Autofac.Integration.WebApi;
 using Deployer.Api.Services;
+using Deployer.Api.Services.Contracts;
 
 namespace Deployer.Api.Classes
 {
-    public class AutofacConfiguration
+    public class AutofacConfig
     {
         public static void InitializeIoc()
         {
@@ -24,6 +25,7 @@ namespace Deployer.Api.Classes
             builder.RegisterType<CacheManager>().As<ICacheManager>().SingleInstance();
             builder.RegisterType<TeamCityService>().As<ITeamCityService>().InstancePerRequest();
             builder.RegisterType<OctopusService>().As<IOctopusService>().InstancePerRequest();
+            builder.RegisterType<NodeService>().As<INodeService>().InstancePerRequest();
 
             var container = builder.Build();
 

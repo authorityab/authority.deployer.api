@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Configuration;
 using Deployer.Api.Classes;
+using Deployer.Api.Services.Contracts;
 using log4net;
 using TeamCitySharp;
 using TeamCitySharp.DomainEntities;
