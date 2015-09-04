@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Deployer.Api.Models
+namespace Authority.Deployer.Api.Models
 {
     public class Build
     {

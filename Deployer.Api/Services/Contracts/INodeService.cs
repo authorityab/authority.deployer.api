@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Deployer.Api.Models;
+using Authority.Deployer.Api.Models;
 
-namespace Deployer.Api.Services.Contracts
+namespace Authority.Deployer.Api.Services.Contracts
 {
     public interface INodeService
     {

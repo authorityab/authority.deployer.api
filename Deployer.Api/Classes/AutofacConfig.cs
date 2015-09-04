@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Web.Http;
 using System.Web.Mvc;
+using Authority.Deployer.Api.Services;
+using Authority.Deployer.Api.Services.Contracts;
 using Autofac;
 using Autofac.Integration.Mvc;
 using Autofac.Integration.WebApi;
-using Deployer.Api.Services;
-using Deployer.Api.Services.Contracts;
 
-namespace Deployer.Api.Classes
+namespace Authority.Deployer.Api.Classes
 {
     public class AutofacConfig
     {

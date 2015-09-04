@@ -6,7 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Caching;
 
-namespace Deployer.Api.Classes
+namespace Authority.Deployer.Api.Classes
 {
     /// <summary>
     /// Contains methods to make caching easier.

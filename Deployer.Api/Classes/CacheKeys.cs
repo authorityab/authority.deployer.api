@@ -1,4 +1,4 @@
-﻿namespace Deployer.Api.Classes
+﻿namespace Authority.Deployer.Api.Classes
 {
     public class CacheKeys
     {

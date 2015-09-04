@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using Deployer.Api.Services;
-using Deployer.Api.Services.Contracts;
+using Authority.Deployer.Api.Services.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Deployer.Api.Test
+namespace Authority.Deployer.Api.Test
 {
     [TestClass]
     public class Timing

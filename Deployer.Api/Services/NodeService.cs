@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Web.Configuration;
-using Deployer.Api.Models;
-using Deployer.Api.Services.Contracts;
+using Authority.Deployer.Api.Models;
+using Authority.Deployer.Api.Services.Contracts;
 using log4net;
 using Newtonsoft.Json;
 
-namespace Deployer.Api.Services
+namespace Authority.Deployer.Api.Services
 {
     public class NodeService : INodeService
     {

@@ -1,7 +1,7 @@
 ﻿using System;
-using Deployer.Api.Classes;
+using Authority.Deployer.Api.Classes;
 
-namespace Deployer.Api.Models.ViewModels
+namespace Authority.Deployer.Api.Models.ViewModels
 {
     public class TeamCityBuildViewModel
     {

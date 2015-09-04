@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using Deployer.Api.Classes;
-using Deployer.Api.Models;
-using Deployer.Api.Services.Contracts;
+using Authority.Deployer.Api.Classes;
+using Authority.Deployer.Api.Models;
+using Authority.Deployer.Api.Services.Contracts;
 using log4net;
 using Octopus.Client;
 using Octopus.Client.Model;
-using Environment = Deployer.Api.Models.Environment;
+using Environment = Authority.Deployer.Api.Models.Environment;
 
-namespace Deployer.Api.Services
+namespace Authority.Deployer.Api.Services
 {
     public class OctopusService : IOctopusService
     {

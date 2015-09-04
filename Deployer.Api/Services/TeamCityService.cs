@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Configuration;
-using Deployer.Api.Classes;
-using Deployer.Api.Services.Contracts;
+using Authority.Deployer.Api.Classes;
+using Authority.Deployer.Api.Services.Contracts;
 using log4net;
 using TeamCitySharp;
 using TeamCitySharp.DomainEntities;
 
-namespace Deployer.Api.Services
+namespace Authority.Deployer.Api.Services
 {
     public class TeamCityService : ITeamCityService
     {

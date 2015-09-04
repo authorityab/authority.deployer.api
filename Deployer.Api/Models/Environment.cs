@@ -1,6 +1,6 @@
-﻿using Deployer.Api.Classes;
+﻿using Authority.Deployer.Api.Classes;
 
-namespace Deployer.Api.Models
+namespace Authority.Deployer.Api.Models
 {
     public class Environment
     {

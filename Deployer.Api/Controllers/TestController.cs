@@ -1,8 +1,7 @@
 ﻿using System.Web.Mvc;
 using log4net;
-using ILog = log4net.ILog;
 
-namespace Deployer.Api.Controllers
+namespace Authority.Deployer.Api.Controllers
 {
     public class TestController : Controller
     {

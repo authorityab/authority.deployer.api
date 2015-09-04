@@ -3,11 +3,10 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Deployer.Api;
-using Deployer.Api.Classes;
+using Authority.Deployer.Api.Classes;
 using log4net.Config;
 
-namespace Deployer.Services
+namespace Authority.Deployer.Api
 {
     public class Global : HttpApplication
     {

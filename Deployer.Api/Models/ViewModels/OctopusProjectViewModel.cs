@@ -1,4 +1,4 @@
-﻿namespace Deployer.Api.Models.ViewModels
+﻿namespace Authority.Deployer.Api.Models.ViewModels
 {
     public class OctopusProjectViewModel
     {

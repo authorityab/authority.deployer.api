@@ -2,7 +2,7 @@
 using System.Web.Http;
 using System.Web.Routing;
 
-namespace Deployer.Api
+namespace Authority.Deployer.Api
 {
     public static class WebApiConfig
     {

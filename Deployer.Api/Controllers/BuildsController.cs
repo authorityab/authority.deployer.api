@@ -1,9 +1,8 @@
 ﻿using System.Web.Http;
-using Deployer.Api.Services;
-using Deployer.Api.Services.Contracts;
+using Authority.Deployer.Api.Services.Contracts;
 using Newtonsoft.Json;
 
-namespace Deployer.Api.Controllers
+namespace Authority.Deployer.Api.Controllers
 {
     public class BuildsController : ApiController
     {

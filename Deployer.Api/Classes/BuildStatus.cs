@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Deployer.Api.Classes
+namespace Authority.Deployer.Api.Classes
 {
     public enum BuildStatus
     {

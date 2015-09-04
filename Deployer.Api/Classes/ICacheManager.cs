@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Web.Caching;
 
-namespace Deployer.Api.Classes
+namespace Authority.Deployer.Api.Classes
 {
     public interface ICacheManager
     {
