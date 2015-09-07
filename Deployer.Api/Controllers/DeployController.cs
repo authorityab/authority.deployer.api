@@ -1,5 +1,7 @@
 ﻿
 using System.Web.Http;
+using System.Web.Http.Results;
+using Authority.Deployer.Api.Models;
 using Authority.Deployer.Api.Services.Contracts;
 using Newtonsoft.Json;
 
@@ -27,11 +29,11 @@ namespace Authority.Deployer.Api.Controllers
         }
 
         [HttpGet]
-        public string Status(string taskId)
+        public JsonResult<DeployTask> Status(string taskId)
         {
             var task = _octopusService.GetTaskProgress(taskId);
 
-            return JsonConvert.SerializeObject(task);
+            return Json(task);
         }
     }
 }

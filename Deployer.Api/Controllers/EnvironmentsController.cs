@@ -1,6 +1,7 @@
 ﻿using System.Web.Http;
+using System.Web.Http.Results;
+using Authority.Deployer.Api.Models;
 using Authority.Deployer.Api.Services.Contracts;
-using Newtonsoft.Json;
 
 namespace Authority.Deployer.Api.Controllers
 {
@@ -13,11 +14,11 @@ namespace Authority.Deployer.Api.Controllers
             _octopusService = octopusService;
         }
 
-        public string Get(string projectId, string releaseId)
+        public JsonResult<EnvironmentPage> Get(string projectId, string releaseId)
         {
             var environmentPage = _octopusService.GetEnvironmentPage(projectId, releaseId);
 
-            return JsonConvert.SerializeObject(environmentPage);
+            return Json(environmentPage);
         }
     }
 }

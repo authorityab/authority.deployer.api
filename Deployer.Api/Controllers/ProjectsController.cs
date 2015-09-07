@@ -1,6 +1,8 @@
-﻿using System.Web.Http;
+﻿using System.Collections.Generic;
+using System.Web.Http;
+using System.Web.Http.Results;
+using Authority.Deployer.Api.Models;
 using Authority.Deployer.Api.Services.Contracts;
-using Newtonsoft.Json;
 
 namespace Authority.Deployer.Api.Controllers
 {
@@ -13,11 +15,11 @@ namespace Authority.Deployer.Api.Controllers
             _octopusService = octopusService;
         }
 
-        public string Get()
+        public JsonResult<List<Project>> Get()
         {
             var projects = _octopusService.GetAllProjects();
 
-            return JsonConvert.SerializeObject(projects);
+            return Json(projects);
         }
     }
 }

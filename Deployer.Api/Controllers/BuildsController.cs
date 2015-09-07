@@ -1,4 +1,7 @@
-﻿using System.Web.Http;
+﻿
+using System.Web.Http;
+using System.Web.Http.Results;
+using Authority.Deployer.Api.Models;
 using Authority.Deployer.Api.Services.Contracts;
 using Newtonsoft.Json;
 
@@ -20,12 +23,12 @@ namespace Authority.Deployer.Api.Controllers
             return JsonConvert.SerializeObject(builds);
         }
 
-        [HttpGet]
-        public string LatestFailed()
+        [System.Web.Http.HttpGet]
+        public JsonResult<Build> LatestFailed()
         {
             var latestFailedBuuild = _teamCityService.GetLatestFailedBuild();
-            
-            return JsonConvert.SerializeObject(latestFailedBuuild);
+
+            return Json(latestFailedBuuild);
         }
     }
 }
