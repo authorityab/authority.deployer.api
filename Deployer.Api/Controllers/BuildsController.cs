@@ -1,9 +1,9 @@
 ﻿
+using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Results;
 using Authority.Deployer.Api.Models;
 using Authority.Deployer.Api.Services.Contracts;
-using Newtonsoft.Json;
 
 namespace Authority.Deployer.Api.Controllers
 {
@@ -16,11 +16,11 @@ namespace Authority.Deployer.Api.Controllers
             _teamCityService = teamCityService;
         }
 
-        public string Get()
+        public JsonResult<List<Build>> Get()
         {
             var builds = _teamCityService.GetAllBuilds();
 
-            return JsonConvert.SerializeObject(builds);
+            return Json(builds);
         }
 
         [System.Web.Http.HttpGet]
