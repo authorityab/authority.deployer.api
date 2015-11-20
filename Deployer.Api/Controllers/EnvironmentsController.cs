@@ -14,9 +14,9 @@ namespace Authority.Deployer.Api.Controllers
             _octopusService = octopusService;
         }
 
-        public JsonResult<EnvironmentPage> Get(string projectId, string releaseId)
+        public JsonResult<Environments> Get(string projectId, string releaseId)
         {
-            var environmentPage = _octopusService.GetEnvironmentPage(projectId, releaseId);
+            var environmentPage = _octopusService.GetEnvironments(projectId, releaseId);
 
             return Json(environmentPage);
         }

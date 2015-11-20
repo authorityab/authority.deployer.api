@@ -14,9 +14,9 @@ namespace Authority.Deployer.Api.Controllers
             _octopusService = octopusService;
         }
 
-        public JsonResult<ReleasePage> Get(string projectId)
+        public JsonResult<Releases> Get(string projectId)
         {
-            var release = _octopusService.GetReleasePage(projectId);
+            var release = _octopusService.GetReleases(projectId);
 
             return Json(release);
         }

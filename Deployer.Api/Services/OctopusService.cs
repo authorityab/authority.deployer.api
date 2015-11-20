@@ -261,7 +261,7 @@ namespace Authority.Deployer.Api.Services
             return null;
         }
 
-        public ReleasePage GetReleasePage(string projectId)
+        public Releases GetReleases(string projectId)
         {
             try
             {
@@ -270,7 +270,7 @@ namespace Authority.Deployer.Api.Services
                 var releases = GetReleasesFromProject(projectId);
                 var latestDeploys = GetLatestDeploys(projectId);
 
-                var releasePage = new ReleasePage
+                var releasePage = new Releases
                 {
                     ProjectName = project.Name,
                     ProjectDescription = project.Description
@@ -302,7 +302,7 @@ namespace Authority.Deployer.Api.Services
                         }
                     }
 
-                    releasePage.Releases.Add(r);
+                    releasePage.Items.Add(r);
                 }
 
                 return releasePage;
@@ -315,7 +315,7 @@ namespace Authority.Deployer.Api.Services
             return null;
         }
 
-        public EnvironmentPage GetEnvironmentPage(string projectId, string releaseId)
+        public Environments GetEnvironments(string projectId, string releaseId)
         {
             try
             {
@@ -326,7 +326,7 @@ namespace Authority.Deployer.Api.Services
                 var latestDeploys = GetLatestDeploys(projectId);
                 var tasks = GetTasksFromLatestDeploys(projectId);
 
-                var environmentPage = new EnvironmentPage
+                var environmentPage = new Environments
                 {
                     ProjectName = project.Name,
                     ReleaseVersion = selectedRelease.Version
@@ -372,7 +372,7 @@ namespace Authority.Deployer.Api.Services
                         environment.Status = DeployStatus.NotDeployed;
                     }
 
-                    environmentPage.Environments.Add(environment);
+                    environmentPage.Items.Add(environment);
                 }
 
                 return environmentPage;

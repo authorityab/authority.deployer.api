@@ -149,10 +149,10 @@
     <Compile Include="Classes\DeployStatus.cs" />
     <Compile Include="Models\DeployTask.cs" />
     <Compile Include="Models\Environment.cs" />
-    <Compile Include="Models\EnvironmentPage.cs" />
+    <Compile Include="Models\Environments.cs" />
     <Compile Include="Models\Project.cs" />
-    <Compile Include="Models\ProjectPage.cs" />
-    <Compile Include="Models\ReleasePage.cs" />
+    <Compile Include="Models\Projects.cs" />
+    <Compile Include="Models\Releases.cs" />
     <Compile Include="Models\Release.cs" />
     <Compile Include="Models\ViewModels\DebugViewModel.cs" />
     <Compile Include="Models\ViewModels\OctopusProjectViewModel.cs" />
@@ -181,6 +181,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Ioc\" />
+    <Folder Include="Models\DTO\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -198,7 +199,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>49530</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://deployerservices.local:49530</IISUrl>
+          <IISUrl>http://authority-deployer.api.local:49530</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
