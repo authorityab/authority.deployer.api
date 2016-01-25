@@ -51,174 +51,6 @@ namespace Authority.Deployer.Api.Services
             _cahManager = cacheManager;
         }
 
-        #region Private Methods
-
-        private ProjectResource GetProject(string projectId)
-        {
-            try
-            {
-                return _repository.Projects.Get(projectId);
-            }
-            catch (Exception e)
-            {
-                _log.Error(string.Format("Get project failed. Id: {0}", projectId), e);
-            }
-
-            return null;
-        }
-
-        private ReleaseResource GetRelease(string releaseId)
-        {
-            try
-            {
-                return _repository.Releases.Get(releaseId);
-            }
-            catch (Exception e)
-            {
-                _log.Error(string.Format("Get release failed. ReleaseId: {0}", releaseId), e);
-            }
-
-            return null;
-        }
-
-        private IEnumerable<ReleaseResource> GetReleasesFromProject(string projectId)
-        {
-            try
-            {
-                //TODO: Maybe do a Take() or paginate?
-               return _repository.Releases.FindMany(x => x.ProjectId == projectId);
-            }
-            catch (Exception e)
-            {
-                _log.Error(string.Format("Get releases from project failed. ProjectId: {0}", projectId), e);
-            }
-
-            return null;
-        }
-
-        private List<EnvironmentResource> GetEnvironmentsFromProject(string projectId)
-        {
-            try
-            {
-                var key = string.Format("{0}_{1}", CacheKeys.EnvironmentsFromProject, projectId);
-                var envList = _cahManager.GetAndCache(
-                    key,
-                    900,
-                    () =>
-                    {
-                        var environments = _repository.Environments.FindAll();
-                        var lifecycleId = _repository.Projects.Get(projectId).LifecycleId;
-
-                        var phases = _repository.Lifecycles.Get(lifecycleId).Phases;
-                        var envIds = new List<string>();
-                        foreach (var phase in phases.Where(phase => phase.OptionalDeploymentTargets != null))
-                        {
-                            envIds.AddRange(phase.OptionalDeploymentTargets.ToList());
-                        }
-
-                        return environments.Where(env => envIds.Any(x => x == env.Id)).ToList();
-                    });
-
-                return envList;
-            }
-            catch (Exception e)
-            {
-                _log.Error(string.Format("Get environments from project failed. ProjectId: {0}", projectId), e);
-            }
-
-            return null;
-        }
-
-        private List<ProjectGroupResource> GetAllProjectGroups()
-        {
-            try
-            {
-                var key = string.Format(CacheKeys.AllProjectGroups);
-                var projectGroups = _cahManager.GetAndCache(
-                    key,
-                    900,
-                    () => _repository.ProjectGroups.FindAll());
-
-                return projectGroups;
-            }
-            catch (Exception e)
-            {
-                _log.Error("Get all project groups failed.", e);
-            }
-
-            return null;
-        }
-
-        private List<DeploymentResource> GetLatestDeploys(string projectId)
-        {
-            try
-            {
-                var key = string.Format("{0}_{1}", CacheKeys.LatestDeployTaskFromProject, projectId);
-                var deploys = _cahManager.GetAndCache(
-                    key,
-                    900,
-                    () =>
-                    {
-                        var environments = GetEnvironmentsFromProject(projectId);
-                        var latestDeploys = new List<DeploymentResource>();
-                        foreach (var env in environments)
-                        {
-                            var deployments = _repository.Deployments.FindAll(new[] {projectId}, new[] {env.Id});
-                            if (deployments != null && deployments.TotalResults > 0)
-                            {
-                                var deploy = deployments.Items.FirstOrDefault();
-                                latestDeploys.Add(deploy);
-                            }
-                        }
-
-                        return latestDeploys;
-                    });
-
-                return deploys;
-
-            }
-            catch (Exception e)
-            {
-                _log.Error(string.Format("Get latest deploys failed. ProjectId: {0}", projectId), e);
-            }
-
-            return null;
-        }
-
-        private List<TaskResource> GetTasksFromLatestDeploys(string projectId)
-        {
-            try
-            {
-                var key = string.Format("{0}_{1}", CacheKeys.LatestDeployTaskFromProject, projectId);
-                var taskList = _cahManager.GetAndCache(
-                    key,
-                    900,
-                    () =>
-                    {
-                        var deploys = GetLatestDeploys(projectId);
-
-                        var tasks = new List<TaskResource>();
-                        foreach (var deploy in deploys)
-                        {
-                            var task = _repository.Tasks.Get(deploy.TaskId);
-                            tasks.Add(task);
-                        }
-
-                        return tasks;
-                    });
-
-                return taskList;
-            }
-            catch (Exception e)
-            {
-                _log.Error(string.Format("Get tasks from latest deploys failed. ProjectId: {0}", projectId), e);
-            }
-
-            return null;
-        }
-
-        #endregion Private Methods
-
         #region Public Methods
 
         public List<Project> GetAllProjects()
@@ -266,9 +98,10 @@ namespace Authority.Deployer.Api.Services
             try
             {
                 var project = GetProject(projectId);
+                
                 var environments = GetEnvironmentsFromProject(projectId);
-                var releases = GetReleasesFromProject(projectId);
                 var latestDeploys = GetLatestDeploys(projectId);
+                var releases = GetReleasesFromProject(project);
 
                 var releasePage = new Releases
                 {
@@ -283,7 +116,7 @@ namespace Authority.Deployer.Api.Services
                         Id = release.Id,
                         Version = release.Version,
                         Assembled =
-                            string.Format("Assembled: {0}{1}", release.Assembled.ToString("dd MMMM yyyy HH:mm"), 
+                            string.Format("Assembled: {0}{1}", release.Assembled.ToString("dd MMMM yyyy HH:mm"),
                             string.IsNullOrEmpty(release.LastModifiedBy) ? string.Empty : ", " + release.LastModifiedBy),
                         ReleaseNotes = release.ReleaseNotes
                     };
@@ -442,8 +275,172 @@ namespace Authority.Deployer.Api.Services
 
         #endregion Public Methods
 
+        #region Private Methods
 
+        private ProjectResource GetProject(string projectId)
+        {
+            try
+            {
+                return _repository.Projects.Get(projectId);
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Get project failed. Id: {0}", projectId), e);
+            }
 
+            return null;
+        }
 
+        private ReleaseResource GetRelease(string releaseId)
+        {
+            try
+            {
+                return _repository.Releases.Get(releaseId);
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Get release failed. ReleaseId: {0}", releaseId), e);
+            }
+
+            return null;
+        }
+
+        private IEnumerable<ReleaseResource> GetReleasesFromProject(ProjectResource project)
+        {
+            try
+            {
+                //TODO: Maybe do a Take() or paginate?
+                return _repository.Projects.GetReleases(project).Items;
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Get releases from project failed. ProjectId: {0}", project.Id), e);
+            }
+
+            return null;
+        }
+
+        private List<EnvironmentResource> GetEnvironmentsFromProject(string projectId)
+        {
+            try
+            {
+                var key = string.Format("{0}_{1}", CacheKeys.EnvironmentsFromProject, projectId);
+                var envList = _cahManager.GetAndCache(
+                    key,
+                    900,
+                    () =>
+                    {
+                        var environments = _repository.Environments.FindAll();
+                        var lifecycleId = _repository.Projects.Get(projectId).LifecycleId;
+
+                        var phases = _repository.Lifecycles.Get(lifecycleId).Phases;
+                        var envIds = new List<string>();
+                        foreach (var phase in phases.Where(phase => phase.OptionalDeploymentTargets != null))
+                        {
+                            envIds.AddRange(phase.OptionalDeploymentTargets.ToList());
+                        }
+
+                        return environments.Where(env => envIds.Any(x => x == env.Id)).ToList();
+                    });
+
+                return envList;
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Get environments from project failed. ProjectId: {0}", projectId), e);
+            }
+
+            return null;
+        }
+
+        private List<ProjectGroupResource> GetAllProjectGroups()
+        {
+            try
+            {
+                var key = string.Format(CacheKeys.AllProjectGroups);
+                var projectGroups = _cahManager.GetAndCache(
+                    key,
+                    900,
+                    () => _repository.ProjectGroups.FindAll());
+
+                return projectGroups;
+            }
+            catch (Exception e)
+            {
+                _log.Error("Get all project groups failed.", e);
+            }
+
+            return null;
+        }
+
+        private List<DeploymentResource> GetLatestDeploys(string projectId)
+        {
+            try
+            {
+                var key = string.Format("{0}_{1}", CacheKeys.LatestDeployTaskFromProject, projectId);
+                var deploys = _cahManager.GetAndCache(
+                    key,
+                    900,
+                    () =>
+                    {
+                        var environments = GetEnvironmentsFromProject(projectId);
+                        var latestDeploys = new List<DeploymentResource>();
+                        foreach (var env in environments)
+                        {
+                            var deployments = _repository.Deployments.FindAll(new[] { projectId }, new[] { env.Id });
+                            if (deployments != null && deployments.TotalResults > 0)
+                            {
+                                var deploy = deployments.Items.FirstOrDefault();
+                                latestDeploys.Add(deploy);
+                            }
+                        }
+
+                        return latestDeploys;
+                    });
+
+                return deploys;
+
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Get latest deploys failed. ProjectId: {0}", projectId), e);
+            }
+
+            return null;
+        }
+
+        private List<TaskResource> GetTasksFromLatestDeploys(string projectId)
+        {
+            try
+            {
+                var key = string.Format("{0}_{1}", CacheKeys.LatestDeployTaskFromProject, projectId);
+                var taskList = _cahManager.GetAndCache(
+                    key,
+                    900,
+                    () =>
+                    {
+                        var deploys = GetLatestDeploys(projectId);
+
+                        var tasks = new List<TaskResource>();
+                        foreach (var deploy in deploys)
+                        {
+                            var task = _repository.Tasks.Get(deploy.TaskId);
+                            tasks.Add(task);
+                        }
+
+                        return tasks;
+                    });
+
+                return taskList;
+            }
+            catch (Exception e)
+            {
+                _log.Error(string.Format("Get tasks from latest deploys failed. ProjectId: {0}", projectId), e);
+            }
+
+            return null;
+        }
+
+        #endregion Private Methods
     }
 }

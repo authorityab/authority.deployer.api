@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using Authority.Deployer.Api.Classes;
+using Authority.Deployer.Api.Services;
 using Authority.Deployer.Api.Services.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,9 +13,9 @@ namespace Authority.Deployer.Api.Test
         private IOctopusService _octopusService;
 
         [TestInitialize]
-        public void Setup(IOctopusService octopusService)
+        public void Setup()
         {
-            _octopusService = octopusService;
+            _octopusService = new OctopusService(new CacheManager());
 
         }
 
@@ -25,7 +27,7 @@ namespace Authority.Deployer.Api.Test
                 var timer = new Stopwatch();
                 timer.Start();
                 
-                var releasePage = _octopusService.GetReleases("projects-33");
+                var releasePage = _octopusService.GetReleases("projects-2");
 
                 timer.Stop();
                 Console.WriteLine("Finished " + i + ": " + timer.Elapsed);
