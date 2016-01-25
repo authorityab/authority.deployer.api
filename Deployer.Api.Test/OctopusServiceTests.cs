@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Authority.Deployer.Api.Test
 {
     [TestClass]
-    public class Timing
+    public class OctopusServiceTests
     {
         private IOctopusService _octopusService;
 
@@ -20,7 +20,7 @@ namespace Authority.Deployer.Api.Test
         }
 
         [TestMethod]
-        public void TimeCache()
+        public void TimeGetReleasePage()
         {
             for (var i = 0; i < 10; i++)
             {

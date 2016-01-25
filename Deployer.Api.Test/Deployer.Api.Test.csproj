@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -120,9 +120,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="App_Start\AuthConfig.cs" />
-    <Compile Include="App_Start\BundleConfig.cs" />
-    <Compile Include="Timing.cs" />
+    <Compile Include="OctopusServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -134,6 +132,9 @@
       <Project>{28CB3EFF-D6BA-452A-802F-F6D222C6F8CE}</Project>
       <Name>Deployer.Api</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Start\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
