@@ -28,8 +28,8 @@ namespace Authority.Deployer.Api.Services
         /*
          * Ocotpus Projects ID
          *  
-         *  SoftResource.Web - Develop: projects-33 | DEV - TST
-         *  SoftResource.Web - Master: projects-225 | UAT - PRO
+         *  Authority.Web - Develop: projects-33 | DEV - TST
+         *  Authority.Web - Master: projects-225 | UAT - PRO
          *  
          */
 
