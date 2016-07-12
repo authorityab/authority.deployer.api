@@ -12,10 +12,10 @@ namespace Authority.Deployer.Api.Services
 {
     public class TeamCityService : ITeamCityService
     {
-        private string Username { get; set; }
-        private string Password { get; set; }
-        private string TeamCityUrl { get; set; }
-        private string ApiUrl { get; set; }
+        private string Username { get; }
+        private string Password { get; }
+        private string TeamCityUrl { get; }
+
         private readonly TeamCityClient _client;
 
         private readonly ILog _log = LogManager.GetLogger(typeof(TeamCityService));
@@ -24,7 +24,6 @@ namespace Authority.Deployer.Api.Services
         {
             Username = WebConfigurationManager.AppSettings["TeamCityUsername"];
             Password = WebConfigurationManager.AppSettings["TeamCityPassword"];
-            ApiUrl = WebConfigurationManager.AppSettings["TeamCityApiUrl"];
             TeamCityUrl = WebConfigurationManager.AppSettings["TeamCityUrl"];
 
             _client = new TeamCityClient(TeamCityUrl); ;
@@ -65,13 +64,13 @@ namespace Authority.Deployer.Api.Services
 
                                 var lastModifiedBy = "Anonymous";
                                 var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(tcBuild.BuildTypeId);
-                                if (lastChange != null && lastChange.User != null)
+                                if (lastChange?.User != null)
                                 {
                                     lastModifiedBy = lastChange.User.Name;
                                 }
 
-                                build.LastBuild = string.Format("Last Build: {0}, {1}", tcBuild.FinishDate.ToString("dd MMMM yyyy HH:mm"),
-                                    lastModifiedBy);
+                                build.LastBuild =
+                                    $"Last Build: {tcBuild.FinishDate.ToString("dd MMMM yyyy HH:mm")}, {lastModifiedBy}";
 
                                 build.LastModifiedBy = lastModifiedBy;
 
@@ -117,7 +116,7 @@ namespace Authority.Deployer.Api.Services
                 lastFailedBuild.BuildConfig = buildConfig;
 
                 var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(lastFailedBuild.BuildTypeId);
-                if (lastChange != null && lastChange.User != null)
+                if (lastChange?.User != null)
                 {
                     buildDestroyer = lastChange.User.Name;
                 }
@@ -135,7 +134,7 @@ namespace Authority.Deployer.Api.Services
             }
             catch (Exception ex)
             {
-                _log.Error(string.Format("Get latest failed build from TC failed."), ex);
+                _log.Error("Get latest failed build from TC failed.", ex);
             }
 
             return null;

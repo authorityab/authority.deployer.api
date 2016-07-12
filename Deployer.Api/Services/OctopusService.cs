@@ -116,8 +116,7 @@ namespace Authority.Deployer.Api.Services
                         Id = release.Id,
                         Version = release.Version,
                         Assembled =
-                            string.Format("Assembled: {0}{1}", release.Assembled.ToString("dd MMMM yyyy HH:mm"),
-                            string.IsNullOrEmpty(release.LastModifiedBy) ? string.Empty : ", " + release.LastModifiedBy),
+                            $"Assembled: {release.Assembled.ToString("dd MMMM yyyy HH:mm")}{(string.IsNullOrEmpty(release.LastModifiedBy) ? string.Empty : ", " + release.LastModifiedBy)}",
                         ReleaseNotes = release.ReleaseNotes
                     };
 
@@ -142,7 +141,7 @@ namespace Authority.Deployer.Api.Services
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("Get release page failed. ProjectId: {0}", projectId), e);
+                _log.Error($"Get release page failed. ProjectId: {projectId}", e);
             }
 
             return null;
@@ -177,8 +176,7 @@ namespace Authority.Deployer.Api.Services
                     {
                         var deploy = latestDeploys.Find(x => x.EnvironmentId == env.Id);
 
-                        environment.LastDeploy = string.Format("Last Deploy: {0}",
-                            deploy.Created.ToString("dd MMMM yyyy HH:mm"));
+                        environment.LastDeploy = $"Last Deploy: {deploy.Created.ToString("dd MMMM yyyy HH:mm")}";
 
                         var release = _repository.Releases.Get(deploy.ReleaseId);
                         environment.ReleaseVersion = release.Version;
@@ -213,7 +211,7 @@ namespace Authority.Deployer.Api.Services
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("Get environment page failed. ProjectId: {0}, ReleaseId: {1}", projectId, releaseId), e);
+                _log.Error($"Get environment page failed. ProjectId: {projectId}, ReleaseId: {releaseId}", e);
             }
 
             return null;
@@ -231,7 +229,7 @@ namespace Authority.Deployer.Api.Services
                     CompletedTime =
                         !task.CompletedTime.HasValue
                             ? string.Empty
-                            : string.Format("Last Deploy: {0}", task.CompletedTime.Value.ToString("dd MMMM yyyy HH:mm")),
+                            : $"Last Deploy: {task.CompletedTime.Value.ToString("dd MMMM yyyy HH:mm")}",
                     State = task.State.ToString(),
                     FinishedSuccessfully = task.FinishedSuccessfully,
                     HasWarningOrErrors = task.HasWarningsOrErrors,
@@ -242,7 +240,7 @@ namespace Authority.Deployer.Api.Services
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("Polling of task failed. TaskId: {0}", taskId), e);
+                _log.Error($"Polling of task failed. TaskId: {taskId}", e);
             }
 
             return null;
@@ -261,13 +259,14 @@ namespace Authority.Deployer.Api.Services
 
                 var deployment = _repository.Deployments.Create(deploymentResource);
 
-                _cahManager.Remove(string.Format("{0}_{1}", CacheKeys.LatestDeploysFromProject, projectId));
+                _cahManager.Remove($"{CacheKeys.LatestDeploysFromProject}_{projectId}");
 
                 return deployment.TaskId;
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("The release of the Cracken failed. ProjectId: {0}, ReleaseId: {1}, environmentId: {2}", projectId, releaseId, environmentId), e);
+                _log.Error(
+                    $"The release of the Cracken failed. ProjectId: {projectId}, ReleaseId: {releaseId}, environmentId: {environmentId}", e);
             }
 
             return null;
@@ -285,7 +284,7 @@ namespace Authority.Deployer.Api.Services
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("Get project failed. Id: {0}", projectId), e);
+                _log.Error($"Get project failed. Id: {projectId}", e);
             }
 
             return null;
@@ -299,7 +298,7 @@ namespace Authority.Deployer.Api.Services
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("Get release failed. ReleaseId: {0}", releaseId), e);
+                _log.Error($"Get release failed. ReleaseId: {releaseId}", e);
             }
 
             return null;
@@ -314,7 +313,7 @@ namespace Authority.Deployer.Api.Services
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("Get releases from project failed. ProjectId: {0}", project.Id), e);
+                _log.Error($"Get releases from project failed. ProjectId: {project.Id}", e);
             }
 
             return null;
@@ -324,7 +323,7 @@ namespace Authority.Deployer.Api.Services
         {
             try
             {
-                var key = string.Format("{0}_{1}", CacheKeys.EnvironmentsFromProject, projectId);
+                var key = $"{CacheKeys.EnvironmentsFromProject}_{projectId}";
                 var envList = _cahManager.GetAndCache(
                     key,
                     900,
@@ -347,7 +346,7 @@ namespace Authority.Deployer.Api.Services
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("Get environments from project failed. ProjectId: {0}", projectId), e);
+                _log.Error($"Get environments from project failed. ProjectId: {projectId}", e);
             }
 
             return null;
@@ -377,7 +376,7 @@ namespace Authority.Deployer.Api.Services
         {
             try
             {
-                var key = string.Format("{0}_{1}", CacheKeys.LatestDeployTaskFromProject, projectId);
+                var key = $"{CacheKeys.LatestDeployTaskFromProject}_{projectId}";
                 var deploys = _cahManager.GetAndCache(
                     key,
                     900,
@@ -403,7 +402,7 @@ namespace Authority.Deployer.Api.Services
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("Get latest deploys failed. ProjectId: {0}", projectId), e);
+                _log.Error($"Get latest deploys failed. ProjectId: {projectId}", e);
             }
 
             return null;
@@ -413,29 +412,21 @@ namespace Authority.Deployer.Api.Services
         {
             try
             {
-                var key = string.Format("{0}_{1}", CacheKeys.LatestDeployTaskFromProject, projectId);
+                var key = $"{CacheKeys.LatestDeployTaskFromProject}_{projectId}";
                 var taskList = _cahManager.GetAndCache(
                     key,
                     900,
                     () =>
                     {
                         var deploys = GetLatestDeploys(projectId);
-
-                        var tasks = new List<TaskResource>();
-                        foreach (var deploy in deploys)
-                        {
-                            var task = _repository.Tasks.Get(deploy.TaskId);
-                            tasks.Add(task);
-                        }
-
-                        return tasks;
+                        return deploys.Select(deploy => _repository.Tasks.Get(deploy.TaskId)).ToList();
                     });
 
                 return taskList;
             }
             catch (Exception e)
             {
-                _log.Error(string.Format("Get tasks from latest deploys failed. ProjectId: {0}", projectId), e);
+                _log.Error($"Get tasks from latest deploys failed. ProjectId: {projectId}", e);
             }
 
             return null;
