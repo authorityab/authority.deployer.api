@@ -31,7 +31,7 @@ namespace Authority.Deployer.Api.Services
             {
                 using (var client = new HttpClient())
                 {
-                    var response = client.PostAsync($"{_baseUrl}/{"setbuilds"}",
+                    var response = client.PostAsync($"{_baseUrl}",
                         new StringContent(JsonConvert.SerializeObject(builds), Encoding.UTF8, "application/json")).Result;
 
                     if (response.IsSuccessStatusCode)
@@ -57,7 +57,7 @@ namespace Authority.Deployer.Api.Services
             {
                 using (var client = new HttpClient())
                 {
-                    var response = client.PostAsync($"{_baseUrl}/{"setlatestbuild"}",
+                    var response = client.PostAsync($"{_baseUrl}/{"latest"}",
                         new StringContent(JsonConvert.SerializeObject(build), Encoding.UTF8, "application/json")).Result;
 
                     if (response.IsSuccessStatusCode)
@@ -83,7 +83,7 @@ namespace Authority.Deployer.Api.Services
             {
                 using (var client = new HttpClient())
                 {
-                    var response = client.PostAsync($"{_baseUrl}/{"setlatestfailedbuild"}",
+                    var response = client.PostAsync($"{_baseUrl}/{"latestFailed"}",
                         new StringContent(JsonConvert.SerializeObject(build), Encoding.UTF8, "application/json")).Result;
 
                     if (response.IsSuccessStatusCode)
