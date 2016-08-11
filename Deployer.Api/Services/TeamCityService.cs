@@ -56,6 +56,7 @@ namespace Authority.Deployer.Api.Services
 
                                 var buildConfig = _client.BuildConfigs.ByConfigurationId(tcBuild.BuildTypeId);
 
+                                build.Id = buildConfig.Id;
                                 build.ProjectId = buildConfig.ProjectId;
                                 build.ProjectName = buildConfig.ProjectName;
                                 build.StepName = buildConfig.Name;
