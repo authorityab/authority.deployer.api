@@ -74,7 +74,6 @@ namespace Authority.Deployer.Api.Services
                                 var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(tcBuild.BuildTypeId);
                                 if (lastChange != null)
                                 {
-                                    build.Comment = lastChange.Comment ?? "";
                                     if (lastChange.User != null)
                                     {
                                         lastModifiedBy = lastChange.User.Name;
@@ -82,7 +81,7 @@ namespace Authority.Deployer.Api.Services
                                     var change = _client.Changes.ByChangeId(lastChange.Id);
                                     if (change != null)
                                     {
-                                        comment = change.Comment;
+                                        comment = change.Comment?.Trim();
                                     }
                                 }
 
@@ -146,7 +145,7 @@ namespace Authority.Deployer.Api.Services
                     var change = _client.Changes.ByChangeId(lastChange.Id); 
                     if (change != null)
                     {
-                        comment = change.Comment;
+                        comment = change.Comment?.Trim();
                     }
                 }
 
