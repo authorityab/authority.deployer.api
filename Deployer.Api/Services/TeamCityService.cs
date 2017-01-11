@@ -55,26 +55,37 @@ namespace Authority.Deployer.Api.Services
                                 var build = new Models.Build();
 
                                 var buildConfig = _client.BuildConfigs.ByConfigurationId(tcBuild.BuildTypeId);
-
-                                build.Id = buildConfig.Id;
+                                
+                                build.Id = tcBuild.Id;
+                                build.Number = tcBuild.Number;
+                                //build.Agent = tcBuild.Agent.Name;
                                 build.ProjectId = buildConfig.ProjectId;
                                 build.ProjectName = buildConfig.ProjectName;
                                 build.StepName = buildConfig.Name;
                                 build.Status = tcBuild.Status;
                                 build.FinishDate = tcBuild.FinishDate;
-
+                                build.WebUrl = tcBuild.WebUrl;
+                                build.Href = tcBuild.Href;
+                                build.BuildConfigWebUrl = buildConfig.WebUrl;
+                                build.BuildConfigId = buildConfig.Id;
+                                build.BuildTypeId = tcBuild.BuildTypeId;
+                                
                                 var lastModifiedBy = "Anonymous";
                                 var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(tcBuild.BuildTypeId);
-                                if (lastChange?.User != null)
+                                if (lastChange != null)
                                 {
-                                    lastModifiedBy = lastChange.User.Name;
+                                    build.Comment = lastChange.Comment ?? "";
+                                    if (lastChange.User != null)
+                                    {
+                                        lastModifiedBy = lastChange.User.Name;
+                                    }
                                 }
 
                                 build.LastBuild =
                                     $"Last Build: {tcBuild.FinishDate.ToString("dd MMMM yyyy HH:mm")}, {lastModifiedBy}";
 
                                 build.LastModifiedBy = lastModifiedBy;
-
+                                
                                 builds.Add(build);
                             }
                         }
