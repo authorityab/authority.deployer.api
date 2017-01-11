@@ -43,28 +43,10 @@ namespace Authority.Deployer.Api.Models
         {
             if (obj == null)
             {
-                _log.Debug("[COMPARE] other is null");
                 return false;
             }
 
             var other = obj as Build;
-
-            if (this.ProjectId.Equals(other.ProjectId))
-            {
-                _log.Debug("[COMPARE] ProjectId is equal");
-                if (this.ProjectName.Equals(other.ProjectName))
-                {
-                    _log.Debug("[COMPARE] ProjectName is equal");
-                    if (this.StepName.Equals(other.StepName))
-                    {
-                        _log.Debug("[COMPARE] StepName is equal");
-                        if (this.Status.Equals(other.Status))
-                        {
-                            _log.Debug("[COMPARE] Status is equal");
-                        }
-                    }
-                }
-            }
 
             return string.Equals(this.ProjectId, other.ProjectId)
                    && string.Equals(this.ProjectName, other.ProjectName)

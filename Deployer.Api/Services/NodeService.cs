@@ -102,5 +102,31 @@ namespace Authority.Deployer.Api.Services
 
             return false;
         }
+
+        public bool PostFailedBuilds(List<Build> builds)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var response = client.PostAsync($"{_baseUrl}/{"failed"}",
+                        new StringContent(JsonConvert.SerializeObject(builds), Encoding.UTF8, "application/json")).Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        dynamic content = JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result);
+                        var isSuccess = bool.Parse(content.success.ToString());
+
+                        return isSuccess;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Post latest failed failed.", ex);
+            }
+
+            return false;
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace Authority.Deployer.Api.Services.Contracts
         bool PostBuilds(List<Build> builds);
         bool PostLatestBuild(Build build);
         bool PostLatestFailedBuild(Build build);
+        bool PostFailedBuilds(List<Build> builds);
     }
 }

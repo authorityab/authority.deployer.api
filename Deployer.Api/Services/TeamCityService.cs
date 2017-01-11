@@ -58,7 +58,6 @@ namespace Authority.Deployer.Api.Services
                                 
                                 build.Id = tcBuild.Id;
                                 build.Number = tcBuild.Number;
-                                //build.Agent = tcBuild.Agent.Name;
                                 build.ProjectId = buildConfig.ProjectId;
                                 build.ProjectName = buildConfig.ProjectName;
                                 build.StepName = buildConfig.Name;
@@ -69,7 +68,8 @@ namespace Authority.Deployer.Api.Services
                                 build.BuildConfigWebUrl = buildConfig.WebUrl;
                                 build.BuildConfigId = buildConfig.Id;
                                 build.BuildTypeId = tcBuild.BuildTypeId;
-                                
+
+                                var comment = "";
                                 var lastModifiedBy = "Anonymous";
                                 var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(tcBuild.BuildTypeId);
                                 if (lastChange != null)
@@ -79,12 +79,18 @@ namespace Authority.Deployer.Api.Services
                                     {
                                         lastModifiedBy = lastChange.User.Name;
                                     }
+                                    var change = _client.Changes.ByChangeId(lastChange.Id);
+                                    if (change != null)
+                                    {
+                                        comment = change.Comment;
+                                    }
                                 }
 
                                 build.LastBuild =
                                     $"Last Build: {tcBuild.FinishDate.ToString("dd MMMM yyyy HH:mm")}, {lastModifiedBy}";
 
                                 build.LastModifiedBy = lastModifiedBy;
+                                build.Comment = comment;
                                 
                                 builds.Add(build);
                             }
@@ -104,6 +110,7 @@ namespace Authority.Deployer.Api.Services
         public Models.Build GetLatestFailedBuild()
         {
             var buildDestroyer = "Anonymous";
+            var comment = "";
 
             try
             {
@@ -127,18 +134,36 @@ namespace Authority.Deployer.Api.Services
                 var buildConfig = _client.BuildConfigs.ByConfigurationId(lastFailedBuild.BuildTypeId);
                 lastFailedBuild.BuildConfig = buildConfig;
 
+           
+                
                 var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(lastFailedBuild.BuildTypeId);
-                if (lastChange?.User != null)
+                if (lastChange != null)
                 {
-                    buildDestroyer = lastChange.User.Name;
+                    if (lastChange.User != null)
+                    {
+                        buildDestroyer = lastChange.User.Name;
+                    }
+                    var change = _client.Changes.ByChangeId(lastChange.Id); 
+                    if (change != null)
+                    {
+                        comment = change.Comment;
+                    }
                 }
 
                 var build = new Models.Build
                 {
+                    Id = lastFailedBuild.Id,
+                    Number = lastFailedBuild.Number,
                     FinishDate = lastFailedBuild.FinishDate,
                     LastModifiedBy = buildDestroyer,
                     ProjectId = lastFailedBuild.BuildConfig.ProjectId,
                     ProjectName = lastFailedBuild.BuildConfig.ProjectName,
+                    StepName = lastFailedBuild.BuildConfig.Name,
+                    WebUrl = lastFailedBuild.WebUrl,
+                    Href = lastFailedBuild.Href,
+                    BuildConfigId = lastFailedBuild.BuildConfig.Id,
+                    BuildTypeId = lastFailedBuild.BuildTypeId,
+                    Comment = comment,
                     Status = BuildStatus.Failure.ToString()
                 };
 
