@@ -1,5 +1,6 @@
 ﻿using System;
 using Authority.Deployer.Api.Classes;
+using BuildStatus = TeamCitySharp.Locators.BuildStatus;
 
 namespace Authority.Deployer.Api.Models.ViewModels
 {

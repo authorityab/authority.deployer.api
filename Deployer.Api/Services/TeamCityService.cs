@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Configuration;
-using Authority.Deployer.Api.Classes;
 using Authority.Deployer.Api.Services.Contracts;
 using log4net;
 using TeamCitySharp;
 using TeamCitySharp.DomainEntities;
+using TeamCitySharp.Locators;
+using TeamCitySharp.Locators.TeamCitySharp.Locators;
+using BuildStatus = TeamCitySharp.Locators.BuildStatus;
 
 namespace Authority.Deployer.Api.Services
 {
@@ -41,7 +43,7 @@ namespace Authority.Deployer.Api.Services
             try
             {
                 var projects = _client.Projects.All();
-                var builds = new List<Api.Models.Build>();
+                var builds = new List<Models.Build>();
                 foreach (var project in projects)
                 {
                     var p = _client.Projects.ById(project.Id);
@@ -49,49 +51,18 @@ namespace Authority.Deployer.Api.Services
                     {
                         foreach (var buildId in p.BuildTypes.BuildType.Select(x => x.Id))
                         {
-                            var tcBuild = _client.Builds.LastBuildByBuildConfigId(buildId);
-                            if (tcBuild != null)
+                            var tcBuilds = _client.Builds.ByBuildLocator(new FluidBuildLocator()
+                                .WithBuildType(FluidBuildTypeLocator.WithId(buildId))
+                                .WithBranch(new FluidBranchLocator().WithDefault(BranchLocatorFlag.Any)));
+
+                            if (tcBuilds != null && tcBuilds.Any())
                             {
-                                var build = new Models.Build();
-
-                                var buildConfig = _client.BuildConfigs.ByConfigurationId(tcBuild.BuildTypeId);
-                                
-                                build.Id = tcBuild.Id;
-                                build.Number = tcBuild.Number;
-                                build.ProjectId = buildConfig.ProjectId;
-                                build.ProjectName = buildConfig.ProjectName;
-                                build.StepName = buildConfig.Name;
-                                build.Status = tcBuild.Status;
-                                build.FinishDate = tcBuild.FinishDate;
-                                build.WebUrl = tcBuild.WebUrl;
-                                build.Href = tcBuild.Href;
-                                build.BuildConfigWebUrl = buildConfig.WebUrl;
-                                build.BuildConfigId = buildConfig.Id;
-                                build.BuildTypeId = tcBuild.BuildTypeId;
-
-                                var comment = "";
-                                var lastModifiedBy = "Anonymous";
-                                var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(tcBuild.BuildTypeId);
-                                if (lastChange != null)
+                                var tcBuild = tcBuilds.First();
+                                if (tcBuild != null)
                                 {
-                                    if (lastChange.User != null)
-                                    {
-                                        lastModifiedBy = lastChange.User.Name;
-                                    }
-                                    var change = _client.Changes.ByChangeId(lastChange.Id);
-                                    if (change != null)
-                                    {
-                                        comment = change.Comment?.Trim();
-                                    }
+                                    var build = PopulateBuild(tcBuild);
+                                    builds.Add(build);
                                 }
-
-                                build.LastBuild =
-                                    $"Last Build: {tcBuild.FinishDate.ToString("dd MMMM yyyy HH:mm")}, {lastModifiedBy}";
-
-                                build.LastModifiedBy = lastModifiedBy;
-                                build.Comment = comment;
-                                
-                                builds.Add(build);
                             }
                         }
                     }
@@ -108,9 +79,6 @@ namespace Authority.Deployer.Api.Services
 
         public Models.Build GetLatestFailedBuild()
         {
-            var buildDestroyer = "Anonymous";
-            var comment = "";
-
             try
             {
                 var projects = _client.Projects.All();
@@ -121,52 +89,31 @@ namespace Authority.Deployer.Api.Services
                     var p = _client.Projects.ById(project.Id);
                     if (p.BuildTypes != null)
                     {
-                        failedBuilds
-                            .AddRange(p.BuildTypes.BuildType.Select(x => x.Id)
-                            .Select(buildId => _client.Builds.LastFailedBuildByBuildConfigId(buildId))
-                            .Where(failedBuild => failedBuild != null));
+                        foreach (var buildId in p.BuildTypes.BuildType.Select(x => x.Id))
+                        {
+                            failedBuilds.AddRange(_client.Builds.ByBuildLocator(new FluidBuildLocator()
+                                .WithBuildType(FluidBuildTypeLocator.WithId(buildId))
+                                .WithBranch(new FluidBranchLocator().WithDefault(BranchLocatorFlag.Any))
+                                .WithSinceDate(DateTime.Now.AddDays(-14))
+                                .WithStatus(BuildStatus.FAILURE)));
+                        }
                     }
                 }
 
-                var lastFailedBuild = failedBuilds.OrderByDescending(x => x.FinishDate).First();
-
-                var buildConfig = _client.BuildConfigs.ByConfigurationId(lastFailedBuild.BuildTypeId);
-                lastFailedBuild.BuildConfig = buildConfig;
-
-           
-                
-                var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(lastFailedBuild.BuildTypeId);
-                if (lastChange != null)
+                if (failedBuilds.Any())
                 {
-                    if (lastChange.User != null)
+                    var buildList = new List<Models.Build>();
+                    foreach (var failedBuild in failedBuilds)
                     {
-                        buildDestroyer = lastChange.User.Name;
+                        var build = PopulateBuild(failedBuild);
+                        buildList.Add(build);
                     }
-                    var change = _client.Changes.ByChangeId(lastChange.Id); 
-                    if (change != null)
-                    {
-                        comment = change.Comment?.Trim();
-                    }
+
+                    var lastFailedBuild = buildList.OrderByDescending(x => x.FinishDate).First();
+                    
+                    return lastFailedBuild;
                 }
-
-                var build = new Models.Build
-                {
-                    Id = lastFailedBuild.Id,
-                    Number = lastFailedBuild.Number,
-                    FinishDate = lastFailedBuild.FinishDate,
-                    LastModifiedBy = buildDestroyer,
-                    ProjectId = lastFailedBuild.BuildConfig.ProjectId,
-                    ProjectName = lastFailedBuild.BuildConfig.ProjectName,
-                    StepName = lastFailedBuild.BuildConfig.Name,
-                    WebUrl = lastFailedBuild.WebUrl,
-                    Href = lastFailedBuild.Href,
-                    BuildConfigId = lastFailedBuild.BuildConfig.Id,
-                    BuildTypeId = lastFailedBuild.BuildTypeId,
-                    Comment = comment,
-                    Status = BuildStatus.Failure.ToString()
-                };
-
-                return build;
+               
             }
             catch (Exception ex)
             {
@@ -174,6 +121,70 @@ namespace Authority.Deployer.Api.Services
             }
 
             return null;
+        }
+
+        private Models.Build PopulateBuild(Build tcBuild)
+        {
+            var build = new Models.Build();
+
+            var buildConfig = _client.BuildConfigs.ByConfigurationId(tcBuild.BuildTypeId);
+
+            build.Id = tcBuild.Id;
+            build.Number = tcBuild.Number;
+            build.ProjectId = buildConfig.ProjectId;
+            build.ProjectName = buildConfig.ProjectName;
+            build.StepName = buildConfig.Name;
+            build.Status = tcBuild.Status;
+            build.WebUrl = tcBuild.WebUrl;
+            build.Href = tcBuild.Href;
+            build.BuildConfigWebUrl = buildConfig.WebUrl;
+            build.BuildConfigId = buildConfig.Id;
+            build.BuildTypeId = tcBuild.BuildTypeId;
+
+            var buildInfo = _client.Builds.ByBuildId(tcBuild.Id);
+            if (buildInfo != null)
+            {
+                build.FinishDate = buildInfo.FinishDate;
+                build.FinishDateFormat = buildInfo.FinishDate.ToString("dd MMMM yyyy HH:mm");
+            }
+
+            FillLastChange(build);
+
+            return build;
+        }
+
+        private void FillLastChange(Models.Build build)
+        {
+            var lastChanges = _client.Changes.ByBuildId(int.Parse(build.Id));
+
+            if (lastChanges != null && lastChanges.Any())
+            {
+                var lastChange = lastChanges.First();
+
+                build.LastModifiedBy = lastChange.Username;
+                if (lastChange.User != null)
+                {
+                    build.LastModifiedBy = lastChange.User.Name;
+                }
+
+                build.Comment = lastChange.Comment?.Trim();
+            }
+            else
+            {
+                var lastChange = _client.Changes.LastChangeDetailByBuildConfigId(build.BuildConfigId);
+                if (lastChange != null)
+                {
+                    build.LastModifiedBy = lastChange.Username;
+                    if (lastChange.User != null)
+                    {
+                        build.LastModifiedBy = lastChange.User.Name;
+                    }
+
+                    build.Comment = lastChange.Comment?.Trim();
+                }
+            }
+
+            build.LastBuild = $"Last Build: {build.FinishDateFormat}, {build.LastModifiedBy}";
         }
     }
 }

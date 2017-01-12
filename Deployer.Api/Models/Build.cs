@@ -23,6 +23,8 @@ namespace Authority.Deployer.Api.Models
 
         public DateTime FinishDate { get; set; }
 
+        public string FinishDateFormat { get; set; }
+
         public string Status { get; set; }
 
         public string LastModifiedBy { get; set; }
